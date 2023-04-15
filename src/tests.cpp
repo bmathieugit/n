@@ -3,6 +3,7 @@
 
 #include <n/maybe.hpp>
 
+#include "n/string.hpp"
 #include "n/utils.hpp"
 #include "n/vector.hpp"
 
@@ -238,8 +239,56 @@ void should_be_reverse_iterable() {
     expected--;
   }
 }
-}  // namespace test::vector
+}  // namespace test::ext_vector
 
+namespace test::static_string {
+void should_be_empty() {
+  n::static_string<char, 4> four;
+  assert(four.empty());
+}
+
+void should_be_full() {
+  n::static_string<char, 4> four;
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 4);
+  assert(four.full());
+}
+
+void should_have_three_items() {
+  n::static_string<char, 4> four;
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 3);
+}
+
+void should_be_popable() {
+  n::static_string<char, 4> four;
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 2);
+  four.pop();
+  assert(four.size() == 1);
+  four.pop();
+  assert(four.size() == 0);
+  assert(four.empty());
+}
+
+void should_not_overflow_on_push() {
+  n::static_string<char, 3> s;
+  s.push('c');
+  s.push('c');
+  s.push('c');
+  assert(s.size() == 3);
+  assert(s.full());
+  s.push('c');
+  assert(s.full());
+  assert(s.size() == 3);
+}
+}  // namespace test::static_string
 
 int main() {
   test::maybe::should_be_empty();
@@ -269,5 +318,11 @@ int main() {
   test::ext_vector::should_be_popable();
   test::ext_vector::should_be_iterable();
   test::ext_vector::should_be_reverse_iterable();
+
+  test::static_string::should_be_empty();
+  test::static_string::should_be_full();
+  test::static_string::should_have_three_items();
+  test::static_string::should_be_popable();
+  test::static_string::should_not_overflow_on_push();
 
 }

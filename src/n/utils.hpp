@@ -2,6 +2,9 @@
 #define __n_utils_hpp__
 
 namespace n {
+
+using size_t = unsigned long long;
+
 namespace impl {
 
 template <typename T, typename U>
@@ -84,6 +87,7 @@ constexpr rm_ref<T>&& transfer(T&& t) {
 }
 
 namespace impl {
+
 template <typename T>
 constexpr bool pointer_eq = false;
 

@@ -8,7 +8,6 @@
 
 namespace n {
 
-using size_t = unsigned long long;
 
 template <typename T>
 class vector_iterator {
