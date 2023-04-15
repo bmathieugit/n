@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++20 -O3 -W -Wall -pedantic -save-temps
+CXXFLAGS=-std=c++20 -O3 -save-temps -fconcepts-diagnostics-depth=10
 CXXINCS=-Isrc
 
 all: \

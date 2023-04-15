@@ -78,17 +78,9 @@ using add_rref = T&&;
 
 namespace n {
 
-  //! @brief transfer the content of the argument t (passed as reference) to a copy
-  //!        and return this copy. The original is resetted to the default value of 
-  //!        the type T.
-  template <typename T>
-constexpr rm_ref<T>&& transfer(rm_ref<T>& t) {
-  return t;
-}
-
 template <typename T>
-constexpr rm_ref<T>&& transfer(rm_ref<T>&& t) {
-  return t;
+constexpr rm_ref<T>&& transfer(T&& t) {
+  return static_cast<rm_ref<T>&&>(t);
 }
 
 namespace impl {
