@@ -24,6 +24,7 @@ class maybe {
     }
   }
 
+  //! @brief Constructor par defaut
   constexpr maybe() : _has(false), _e() {}
 
   constexpr maybe(const T &t) : _has(true), _t(t) {}

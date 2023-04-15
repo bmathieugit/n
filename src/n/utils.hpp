@@ -77,7 +77,11 @@ using add_rref = T&&;
 }  // namespace n
 
 namespace n {
-template <typename T>
+
+  //! @brief transfer the content of the argument t (passed as reference) to a copy
+  //!        and return this copy. The original is resetted to the default value of 
+  //!        the type T.
+  template <typename T>
 constexpr rm_ref<T>&& transfer(rm_ref<T>& t) {
   return t;
 }
@@ -106,9 +110,9 @@ constexpr auto transfer(T&& t) {
 }
 
 template <typename T>
-concept number_eq = 
-same_as<rm_ref<T>, char> || same_as<rm_ref<T>, short> || same_as<rm_ref<T>, int> ||
-                    same_as<rm_ref<T>, long> || same_as<rm_ref<T>, long long> || same_as<rm_ref<T>, bool>;
+concept number_eq = same_as<rm_ref<T>, char> || same_as<rm_ref<T>, short> ||
+                    same_as<rm_ref<T>, int> || same_as<rm_ref<T>, long> ||
+                    same_as<rm_ref<T>, long long> || same_as<rm_ref<T>, bool>;
 
 template <number_eq T>
 constexpr auto transfer(T&& t) {

@@ -1,4 +1,5 @@
 #include "n/utils.hpp"
+#include "n/vector.hpp"
 #include <n/maybe.hpp>
 
 #include <stdio.h>
@@ -27,9 +28,24 @@ namespace test::maybe {
   }
 }
 
+namespace test::static_vector {
+  void should_be_empty(){
+    n::static_vector<int, 10> emptyv;
+    assert(emptyv.empty());
+  }
+
+  void should_contain_one_item();
+  void should_contain_three_item();
+  void should_be_full();
+  void should_be_popable();
+  void should_contains_one_item_after_push_it();
+}
+
 
 int main() {
   test::maybe::should_be_empty();
   test::maybe::should_be_valued();
   test::maybe::should_map_new_value();
+
+  test::static_vector::should_be_empty();
 }
