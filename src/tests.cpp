@@ -290,6 +290,106 @@ void should_not_overflow_on_push() {
 }
 }  // namespace test::static_string
 
+namespace test::string {
+void should_be_empty() {
+  n::string<char> four;
+  assert(four.empty());
+}
+
+void should_be_full() {
+  n::string<char> four(4);
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 4);
+  assert(four.full());
+}
+
+void should_have_three_items() {
+  n::string<char> four(4);
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 3);
+}
+
+void should_be_popable() {
+  n::string<char> four(4);
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 2);
+  four.pop();
+  assert(four.size() == 1);
+  four.pop();
+  assert(four.size() == 0);
+  assert(four.empty());
+}
+
+void should_not_overflow_on_push() {
+  n::string<char> s(3);
+  s.push('c');
+  s.push('c');
+  s.push('c');
+  assert(s.size() == 3);
+  assert(s.full());
+  s.push('c');
+  assert(s.full());
+  assert(s.size() == 3);
+}
+}  // namespace test::static_string
+
+namespace test::ext_string {
+void should_be_empty() {
+  n::ext_string<char> four;
+  assert(four.empty());
+}
+
+void should_be_full() {
+  n::ext_string<char> four(4);
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 4);
+  assert(four.full());
+}
+
+void should_have_three_items() {
+  n::ext_string<char> four(4);
+  four.push('a');
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 3);
+}
+
+void should_be_popable() {
+  n::ext_string<char> four(4);
+  four.push('a');
+  four.push('a');
+  assert(four.size() == 2);
+  four.pop();
+  assert(four.size() == 1);
+  four.pop();
+  assert(four.size() == 0);
+  assert(four.empty());
+}
+
+void should_not_overflow_on_push() {
+  n::ext_string<char> s(3);
+  s.push('c');
+  s.push('c');
+  s.push('c');
+  assert(s.size() == 3);
+  assert(s.full());
+  s.push('c');
+  assert(!s.full());
+  assert(s.size() == 4);
+}
+}  // namespace test::static_string
+
+
+
 int main() {
   test::maybe::should_be_empty();
   test::maybe::should_be_valued();
@@ -324,5 +424,19 @@ int main() {
   test::static_string::should_have_three_items();
   test::static_string::should_be_popable();
   test::static_string::should_not_overflow_on_push();
+
+  test::string::should_be_empty();
+  test::string::should_be_full();
+  test::string::should_have_three_items();
+  test::string::should_be_popable();
+  test::string::should_not_overflow_on_push();
+
+  test::ext_string::should_be_empty();
+  test::ext_string::should_be_full();
+  test::ext_string::should_have_three_items();
+  test::ext_string::should_be_popable();
+  test::ext_string::should_not_overflow_on_push();
+
+
 
 }

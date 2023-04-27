@@ -28,17 +28,12 @@ class static_string {
  public:
   constexpr auto iter() { return _data.iter(); }
   constexpr auto iter() const { return _data.iter(); }
-
-  constexpr auto riter() {
-    // TODO: to implement
-  }
-
-  constexpr auto riter() const {
-    // TODO: to implement
-  }
+  constexpr auto riter() { return _data.riter(); }
+  constexpr auto riter() const { _data.riter(); }
 
  public:
-  constexpr size_t size() const { return _data.size(); }
+  constexpr auto max() const { return N; }
+  constexpr auto size() const { return _data.size(); }
   constexpr bool empty() const { return _data.empty(); }
   constexpr bool full() const { return _data.size() == N; }
 
@@ -52,11 +47,11 @@ class static_string {
 template <character C>
 class string {
  private:
-  vector<C> _data = 10;
+  vector<C> _data{10};
 
  public:
   constexpr string() = default;
-
+  constexpr string(size_t max) : _data(max + 1) {}
   // move
   constexpr string(string&&) = default;
   constexpr string& operator=(string&&) = default;
@@ -68,20 +63,14 @@ class string {
  public:
   constexpr auto iter() { return _data.iter(); }
   constexpr auto iter() const { return _data.iter(); }
-
-  constexpr auto riter() {
-    // TODO: to implement
-  }
-
-  constexpr auto riter() const {
-    // TODO: to implement
-  }
+  constexpr auto riter() { return _data.riter(); }
+  constexpr auto riter() const { return _data.riter(); }
 
  public:
-  constexpr auto  size() const { return _data.size(); }
+  constexpr auto size() const { return _data.size(); }
   constexpr bool empty() const { return _data.empty(); }
   constexpr bool full() const { return size() == max(); }
-  constexpr auto max() const { return _data.max() - 1; }
+  constexpr auto max() const { return _data.max() -1; }
 
   constexpr void push(C c) {
     if (!full()) _data.push(c);
@@ -93,11 +82,11 @@ class string {
 template <character C>
 class ext_string {
  private:
-  ext_vector<C> _data = 10;
+  ext_vector<C> _data{10};
 
  public:
   constexpr ext_string() = default;
-
+  constexpr ext_string(size_t max) : _data(max + 1) {}
   // move
   constexpr ext_string(ext_string&&) = default;
   constexpr ext_string& operator=(ext_string&&) = default;
@@ -110,27 +99,29 @@ class ext_string {
   constexpr auto iter() { return _data.iter(); }
   constexpr auto iter() const { return _data.iter(); }
 
-  constexpr auto riter() {
-    // TODO: to implement
-  }
-
-  constexpr auto riter() const {
-    // TODO: to implement
-  }
+  constexpr auto riter() { _data.riter(); }
+  constexpr auto riter() const { _data.riter(); }
 
  public:
-  constexpr auto max() const {return _data.max() -1;}
+  constexpr auto max() const { return _data.max() - 1; }
   constexpr auto size() const { return _data.size(); }
   constexpr bool empty() const { return _data.empty(); }
-  constexpr bool full() const { return size() == max() -1; }
+  constexpr bool full() const { return size() == max(); }
 
   constexpr void push(C c) {
-    if (!full()) _data.push(c);
+    if (full()) {
+      auto tmp = transfer(_data);
+      _data = ext_vector<C>(_data.size() * 2 + 10);
+      auto itmp = tmp.iter();
+
+      while (itmp.has_next()) _data.push(itmp.next());
+    }
+
+    _data.push(c);
   }
 
   constexpr maybe<C> pop() { return _data.pop(); }
 };
-
 
 }  // namespace n
 
