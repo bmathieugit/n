@@ -8,7 +8,6 @@
 
 namespace n {
 
-
 template <typename T>
 class vector_iterator {
  private:
@@ -60,6 +59,7 @@ class static_vector {
   constexpr static_vector &operator=(const static_vector &) = default;
 
  public:
+  constexpr auto max() const { return N; }
   constexpr auto size() const { return _size; }
   constexpr auto empty() const { return _size == 0; }
   constexpr auto full() const { return _size == N; }
@@ -156,6 +156,7 @@ class vector {
   }
 
  public:
+  constexpr auto max() const { return _max; }
   constexpr bool empty() const { return _size == 0; }
   constexpr bool full() const { return _size == _max; }
   constexpr auto size() const { return _size; }
@@ -221,6 +222,7 @@ class ext_vector {
   }
 
  public:
+  constexpr auto max() const {return _data.max();}
   constexpr auto size() const { return _data.size(); }
   constexpr auto empty() const { return _data.empty(); }
   constexpr auto full() const { return _data.full(); }
