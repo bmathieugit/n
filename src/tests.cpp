@@ -1,11 +1,39 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <n/algorithm.hpp>
 #include <n/maybe.hpp>
+#include <n/string.hpp>
+#include <n/utils.hpp>
+#include <n/vector.hpp>
 
-#include "n/string.hpp"
-#include "n/utils.hpp"
-#include "n/vector.hpp"
+namespace test::algo {
+void should_find_an_item() {
+  n::static_vector<int, 3> v;
+  v.push(1);
+  v.push(2);
+  v.push(3);
+  auto i = n::find(v.iter(), [](int i) { return i == 2; });
+  assert(i == 1);
+}
+
+void should_apply_function_foreach_item() {
+  n::static_vector<int, 3> v;
+  v.push(1);
+  v.push(2);
+  v.push(3);
+
+  n::for_each(v.iter(), [](int& i) { i += 2; });
+
+  auto j = 3;
+  auto i = v.iter();
+
+  while (i.has_next()) {
+    assert(i.next() == j);
+    ++j;
+  }
+}
+}  // namespace test::algo
 
 namespace test::maybe {
 void should_be_empty() {
@@ -337,7 +365,7 @@ void should_not_overflow_on_push() {
   assert(s.full());
   assert(s.size() == 3);
 }
-}  // namespace test::static_string
+}  // namespace test::string
 
 namespace test::ext_string {
 void should_be_empty() {
@@ -386,11 +414,44 @@ void should_not_overflow_on_push() {
   assert(!s.full());
   assert(s.size() == 4);
 }
-}  // namespace test::static_string
+}  // namespace test::ext_string
 
-
+// #include <n/format.hpp>
 
 int main() {
+  n::string_view<char> sv = "coucuo";
+
+  auto isv = sv.iter();
+  while (isv.has_next()) {
+    printf("%c\n", isv.next());
+  }
+
+  /*n::ext_string<char> s;
+  s.push('a');
+  s.push('b');
+  s.push('c');
+  auto is = s.iter();
+  while (is.has_next()) {
+    printf("%c\n", is.next());
+  }*/
+
+  /*  n::static_string<char, 10> fmt;
+  fmt.push(' ');
+  fmt.push(' ');
+  fmt.push(' ');
+  fmt.push('$');
+  fmt.push('!');
+
+  n::string<char> s(10);
+  s.push('a');
+  s.push('b');
+  auto res = n::format<n::ext_string<char>>(fmt, s);
+
+  n::for_each(res.iter(), [](char c) { printf("%c", c); });
+  printf("\n");
+
+  test::algo::should_find_an_item();
+  test::algo::should_apply_function_foreach_item();
   test::maybe::should_be_empty();
   test::maybe::should_be_valued();
   test::maybe::should_map_new_value();
@@ -436,7 +497,5 @@ int main() {
   test::ext_string::should_have_three_items();
   test::ext_string::should_be_popable();
   test::ext_string::should_not_overflow_on_push();
-
-
-
+*/
 }

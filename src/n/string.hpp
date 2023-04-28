@@ -9,12 +9,83 @@ namespace n {
 template <typename C>
 concept character = same_as<C, char> || same_as<C, wchar_t>;
 
+template <character C>
+class string_view_iterator {
+ private:
+  const C* _begin;
+  const C* _end;
+
+ public:
+  constexpr string_view_iterator(const C* begin, const C* end)
+      : _begin(begin), _end(end) {}
+
+  constexpr bool has_next() const { return _begin != _end; }
+  constexpr const C next() { return *(_begin++); }
+};
+
+template <character C>
+class string_view_riterator {
+ private:
+  const C* _begin;
+  const C* _end;
+
+ public:
+  constexpr string_view_riterator(const C* begin, const C* end)
+      : _begin(begin == nullptr ? nullptr : begin - 1),
+        _end(end == nullptr ? nullptr : end - 1) {}
+
+  constexpr bool has_next() const { return _begin != _end; }
+  constexpr const C next() { return *(_end--); }
+};
+
+template <character C>
+class string_view {
+ private:
+  const C* _begin = nullptr;
+  const C* _end = nullptr;
+
+ private:
+  size_t __len(const C* s) {
+    auto c = s;
+
+    if (c != nullptr)
+      while (*c != '\0') ++c;
+
+    return c - s;
+  }
+
+ public:
+  constexpr ~string_view() = default;
+  constexpr string_view() = default;
+  constexpr string_view(const C* begin)
+      : _begin(begin), _end(begin + __len(begin)) {}
+  constexpr string_view(const C* begin, const C* end)
+      : _begin(begin), _end(end) {}
+  constexpr string_view(const C* begin, size_t len)
+      : _begin(begin), _end(begin + len) {}
+
+  constexpr string_view(string_view&&) = default;
+  constexpr string_view& operator=(string_view&&) = default;
+
+  constexpr string_view(const string_view&) = default;
+  constexpr string_view& operator=(const string_view&) = default;
+
+ public:
+  constexpr auto iter() const { return string_view_iterator(_begin, _end); }
+  constexpr auto riter() const { return string_view_riterator(_begin, _end); }
+
+ public:
+  constexpr auto size() const { return _end - _begin; }
+  constexpr auto empty() const { return size() == 0; }
+};
+
 template <character C, size_t N>
 class static_string {
  private:
   static_vector<C, N + 1> _data;
 
  public:
+  constexpr ~static_string() = default;
   constexpr static_string() = default;
 
   // move
@@ -50,6 +121,7 @@ class string {
   vector<C> _data{10};
 
  public:
+  constexpr ~string() = default;
   constexpr string() = default;
   constexpr string(size_t max) : _data(max + 1) {}
   // move
@@ -70,7 +142,7 @@ class string {
   constexpr auto size() const { return _data.size(); }
   constexpr bool empty() const { return _data.empty(); }
   constexpr bool full() const { return size() == max(); }
-  constexpr auto max() const { return _data.max() -1; }
+  constexpr auto max() const { return _data.max() - 1; }
 
   constexpr void push(C c) {
     if (!full()) _data.push(c);
@@ -85,6 +157,7 @@ class ext_string {
   ext_vector<C> _data{10};
 
  public:
+  constexpr ~ext_string() = default;
   constexpr ext_string() = default;
   constexpr ext_string(size_t max) : _data(max + 1) {}
   // move
