@@ -428,20 +428,12 @@ int main() {
     printf("%c\n", isv.next());
   }
 
-  n::ext_string<char> s;
-  s.push('a');
-  s.push('b');
-  s.push('c');
-  auto is = s.iter();
-  while (is.has_next()) {
-    printf("%c\n", is.next());
-  }
 
   n::string_view<char> fmt = "   $! ";
 
   n::string<char> s2(10);
-  s.push('a');
-  s.push('b');
+  s2.push('a');
+  s2.push('b');
   n::ext_string<char> s3;
   n::format_to(s3, fmt, s2.iter());
 

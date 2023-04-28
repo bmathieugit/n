@@ -19,10 +19,8 @@ constexpr void format_one_to(O &o, const T &t) {
   formatter<rm_cvref<T>>::to(o, t);
 }
 
-template <character C>
-constinit const C joker = '$';
-
 namespace impl {
+
 template <typename O, typename I, typename H>
 constexpr void format_to_one_by_one(O &o, I &ifmt, const H &h) {
   while (ifmt.has_next()) {
@@ -44,6 +42,7 @@ constexpr void format_to(O &o, string_view<C> fmt, const T &...t) {
   (format_to_one_by_one(o, ifmt, t), ...);
   while (ifmt.has_next()) format_one_to(o, ifmt.next());
 }
+
 }  // namespace impl
 
 template <typename O, typename... A>
@@ -158,11 +157,11 @@ class formatter<P> {
   }
 };
 
-template<typename I>
+template <typename I>
 concept iterator = requires(I i) {
-  i.has_next();
-  i.next();
-};
+                     i.has_next();
+                     i.next();
+                   };
 
 template <iterator I>
 class formatter<I> {
@@ -170,7 +169,8 @@ class formatter<I> {
   template <typename O>
   constexpr static void to(O &o, I i) {
     while (i.has_next()) {
-      o.push(i.next());
+      auto c = i.next();
+      o.push(c);
     }
   }
 };
