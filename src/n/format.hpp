@@ -9,7 +9,7 @@ namespace n {
 template <typename T>
 class formatter;
 
-/*template <typename T, typename O>
+/*template <typename T, typename >
 concept formattable =
     ostream<O> && requires(const T &t, O &o) { formatter<T>::to(o, t); };
 */
@@ -51,7 +51,7 @@ constexpr void format_to(O &o, string_view<char> fmt, const A &...a) {
   impl::format_to(o, fmt, a...);
 }
 
-template <typename  O, typename... A>
+template <typename O, typename... A>
 constexpr void format_to(O &o, string_view<wchar_t> fmt, const A &...a) {
   impl::format_to(o, fmt, a...);
 }
@@ -59,16 +59,20 @@ constexpr void format_to(O &o, string_view<wchar_t> fmt, const A &...a) {
 template <character C>
 class formatter<C> {
  public:
-  template <typename  O>
+  template <typename O>
   constexpr static void to(O &os, C o) {
     os.push(o);
   }
 };
 
+template <typename I>
+concept signed_integral = same_as<I, short> || same_as<I, int> ||
+                          same_as<I, long> || same_as<I, long long>;
+
 template <signed_integral I>
 class formatter<I> {
  public:
-  template <typename  O>
+  template <typename O>
   constexpr static void to(O &o, I i) {
     static_vector<char, 20> tbuff;
 
@@ -88,9 +92,14 @@ class formatter<I> {
       }
     }
 
-    format_one_to(o, view(tbuff.riter()));
+    format_one_to(o, tbuff.riter());
   }
 };
+
+template <typename I>
+concept unsigned_integral =
+    same_as<I, unsigned short> || same_as<I, unsigned int> ||
+    same_as<I, unsigned long> || same_as<I, unsigned long long>;
 
 template <unsigned_integral I>
 class formatter<I> {
@@ -108,14 +117,17 @@ class formatter<I> {
       }
     }
 
-    format_one_to(o, view(tbuff.riter()));
+    format_one_to(o, tbuff.riter());
   }
 };
+
+template <typename F>
+concept floating_point = same_as<F, float> || same_as<F, double>;
 
 template <floating_point F>
 class formatter<F> {
  public:
-  template <typename  O>
+  template <typename O>
   constexpr static void to(O &o, F d) {
     size_t i = static_cast<size_t>(d);
     size_t e = static_cast<size_t>((d - i) * 10'000.0);
@@ -129,10 +141,10 @@ class formatter<F> {
 template <>
 class formatter<bool> {
  public:
-  template <typename  O>
+  template <typename O>
   constexpr static void to(O &o, bool b) {
-    constexpr auto _true = str::view("true");
-    constexpr auto _false = str::view("false");
+    constexpr string_view<char> _true = "true";
+    constexpr string_view<char> _false = "false";
     format_one_to(o, b ? _true : _false);
   }
 };
@@ -146,6 +158,12 @@ class formatter<P> {
   }
 };
 
+template<typename I>
+concept iterator = requires(I i) {
+  i.has_next();
+  i.next();
+};
+
 template <iterator I>
 class formatter<I> {
  public:
@@ -156,7 +174,7 @@ class formatter<I> {
     }
   }
 };
-
+/*
 template <iterable I>
 class formatter<I> {
  public:
@@ -165,6 +183,6 @@ class formatter<I> {
     formatter<decltype(i.iter())>::to(o, i.iter());
   }
 };
-
+*/
 }  // namespace n
 #endif

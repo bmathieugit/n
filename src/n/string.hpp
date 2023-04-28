@@ -45,7 +45,7 @@ class string_view {
   const C* _end = nullptr;
 
  private:
-  size_t __len(const C* s) {
+  constexpr size_t __len(const C* s) {
     auto c = s;
 
     if (c != nullptr)
