@@ -9,20 +9,18 @@ namespace n {
 template <typename T>
 class formatter;
 
-/*template <typename T, typename >
-concept formattable =
-    ostream<O> && requires(const T &t, O &o) { formatter<T>::to(o, t); };
-*/
+template <typename T>
+concept formattable = requires { formatter<T>{}; };
 
-template <typename O, typename T>
+namespace impl {
+
+template <typename O, formattable T>
 constexpr void format_one_to(O &o, const T &t) {
   formatter<rm_cvref<T>>::to(o, t);
 }
 
-namespace impl {
-
-template <typename O, typename I, typename H>
-constexpr void format_to_one_by_one(O &o, I &ifmt, const H &h) {
+template <typename O, typename I, formattable T>
+constexpr void format_to_one_by_one(O &o, I &ifmt, const T &t) {
   while (ifmt.has_next()) {
     auto c = ifmt.next();
 
@@ -33,10 +31,10 @@ constexpr void format_to_one_by_one(O &o, I &ifmt, const H &h) {
     }
   }
 
-  format_one_to(o, h);
+  format_one_to(o, t);
 }
 
-template <character C, typename O, typename... T>
+template <character C, typename O, formattable... T>
 constexpr void format_to(O &o, string_view<C> fmt, const T &...t) {
   auto ifmt = fmt.iter();
   (format_to_one_by_one(o, ifmt, t), ...);
@@ -45,14 +43,14 @@ constexpr void format_to(O &o, string_view<C> fmt, const T &...t) {
 
 }  // namespace impl
 
-template <typename O, typename... A>
-constexpr void format_to(O &o, string_view<char> fmt, const A &...a) {
-  impl::format_to(o, fmt, a...);
+template <typename O, formattable... T>
+constexpr void format_to(O &o, string_view<char> fmt, const T &...t) {
+  impl::format_to(o, fmt, t...);
 }
 
-template <typename O, typename... A>
-constexpr void format_to(O &o, string_view<wchar_t> fmt, const A &...a) {
-  impl::format_to(o, fmt, a...);
+template <typename O, formattable... T>
+constexpr void format_to(O &o, string_view<wchar_t> fmt, const T&...t) {
+  impl::format_to(o, fmt, t...);
 }
 
 template <character C>
@@ -63,10 +61,6 @@ class formatter<C> {
     os.push(o);
   }
 };
-
-template <typename I>
-concept signed_integral = same_as<I, short> || same_as<I, int> ||
-                          same_as<I, long> || same_as<I, long long>;
 
 template <signed_integral I>
 class formatter<I> {
@@ -95,11 +89,6 @@ class formatter<I> {
   }
 };
 
-template <typename I>
-concept unsigned_integral =
-    same_as<I, unsigned short> || same_as<I, unsigned int> ||
-    same_as<I, unsigned long> || same_as<I, unsigned long long>;
-
 template <unsigned_integral I>
 class formatter<I> {
  public:
@@ -119,9 +108,6 @@ class formatter<I> {
     format_one_to(o, tbuff.riter());
   }
 };
-
-template <typename F>
-concept floating_point = same_as<F, float> || same_as<F, double>;
 
 template <floating_point F>
 class formatter<F> {
@@ -168,15 +154,6 @@ class formatter<I> {
     }
   }
 };
-/*
-template <iterable I>
-class formatter<I> {
- public:
-  template <typename O>
-  constexpr static void to(O &o, const I &i) {
-    formatter<decltype(i.iter())>::to(o, i.iter());
-  }
-};
-*/
+
 }  // namespace n
 #endif

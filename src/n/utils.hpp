@@ -135,13 +135,23 @@ constexpr U cast(T&& t) noexcept {
 template <typename T>
 constexpr T fakeval() noexcept;
 
+template <typename I>
+concept signed_integral = same_as<I, short> || same_as<I, int> ||
+                          same_as<I, long> || same_as<I, long long>;
 
-template<typename I>
+template <typename I>
+concept unsigned_integral =
+    same_as<I, unsigned short> || same_as<I, unsigned int> ||
+    same_as<I, unsigned long> || same_as<I, unsigned long long>;
+
+template <typename F>
+concept floating_point = same_as<F, float> || same_as<F, double>;
+
+template <typename I>
 concept iterator = requires(I i) {
-  i.has_next();
-  i.next();
-};
-
+                     i.has_next();
+                     i.next();
+                   };
 
 }  // namespace n
 

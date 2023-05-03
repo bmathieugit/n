@@ -420,6 +420,8 @@ void should_not_overflow_on_push() {
 
 // #include <n/format.hpp>
 
+struct person{};
+
 int main() {
   n::string_view<char> sv = "coucuo";
   n::string_view<char> fmt = "   $! ";
