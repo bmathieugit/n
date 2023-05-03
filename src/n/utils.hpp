@@ -135,6 +135,14 @@ constexpr U cast(T&& t) noexcept {
 template <typename T>
 constexpr T fakeval() noexcept;
 
+
+template<typename I>
+concept iterator = requires(I i) {
+  i.has_next();
+  i.next();
+};
+
+
 }  // namespace n
 
 #endif

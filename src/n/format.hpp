@@ -157,12 +157,6 @@ class formatter<P> {
   }
 };
 
-template <typename I>
-concept iterator = requires(I i) {
-                     i.has_next();
-                     i.next();
-                   };
-
 template <iterator I>
 class formatter<I> {
  public:

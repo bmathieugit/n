@@ -10,11 +10,7 @@ template <typename C>
 concept character = same_as<C, char> || same_as<C, wchar_t>;
 
 template <character C>
-class string_view {
- private:
-  const C* _begin = nullptr;
-  const C* _end = nullptr;
-
+class string_view : public vector_view<C> {
  private:
   constexpr size_t __len(const C* s) {
     auto c = s;
@@ -29,11 +25,11 @@ class string_view {
   constexpr ~string_view() = default;
   constexpr string_view() = default;
   constexpr string_view(const C* begin)
-      : _begin(begin), _end(begin + __len(begin)) {}
+      : vector_view<C>(begin, begin + __len(begin)) {}
   constexpr string_view(const C* begin, const C* end)
-      : _begin(begin), _end(end) {}
+      : vector_view<C>(begin, end) {}
   constexpr string_view(const C* begin, size_t len)
-      : _begin(begin), _end(begin + len) {}
+      : vector_view<C>(begin, begin + len) {}
 
   // move
   constexpr string_view(string_view&&) = default;
@@ -42,132 +38,16 @@ class string_view {
   // copy
   constexpr string_view(const string_view&) = default;
   constexpr string_view& operator=(const string_view&) = default;
-
- public:
-  constexpr auto iter() const { return vector_iterator(_begin, _end); }
-  constexpr auto riter() const { return reverse_vector_iterator(_begin, _end); }
-
- public:
-  constexpr auto size() const { return _end - _begin; }
-  constexpr auto empty() const { return size() == 0; }
 };
 
-template <character C, size_t N>
-class static_string {
- private:
-  static_vector<C, N + 1> _data;
-
- public:
-  constexpr ~static_string() = default;
-  constexpr static_string() = default;
-
-  // move
-  constexpr static_string(static_string&&) = default;
-  constexpr static_string& operator=(static_string&&) = default;
-
-  // copy
-  constexpr static_string(const static_string&) = default;
-  constexpr static_string& operator=(const static_string&) = default;
-
- public:
-  constexpr auto iter() { return _data.iter(); }
-  constexpr auto iter() const { return _data.iter(); }
-  constexpr auto riter() { return _data.riter(); }
-  constexpr auto riter() const { _data.riter(); }
-
- public:
-  constexpr auto max() const { return N; }
-  constexpr auto size() const { return _data.size(); }
-  constexpr bool empty() const { return _data.empty(); }
-  constexpr bool full() const { return _data.size() == N; }
-
-  constexpr void push(C c) {
-    if (!full()) _data.push(c);
-  }
-
-  constexpr maybe<C> pop() { return _data.pop(); }
-};
+template<character C, size_t N>
+using static_string = static_vector<C, N>;
 
 template <character C>
-class string {
- private:
-  vector<C> _data{10};
-
- public:
-  constexpr ~string() = default;
-  constexpr string() = default;
-  constexpr string(size_t max) : _data(max + 1) {}
-  // move
-  constexpr string(string&&) = default;
-  constexpr string& operator=(string&&) = default;
-
-  // copy
-  constexpr string(const string&) = default;
-  constexpr string& operator=(const string&) = default;
-
- public:
-  constexpr auto iter() { return _data.iter(); }
-  constexpr auto iter() const { return _data.iter(); }
-  constexpr auto riter() { return _data.riter(); }
-  constexpr auto riter() const { return _data.riter(); }
-
- public:
-  constexpr auto size() const { return _data.size(); }
-  constexpr bool empty() const { return _data.empty(); }
-  constexpr bool full() const { return size() == max(); }
-  constexpr auto max() const { return _data.max() - 1; }
-
-  constexpr void push(C c) {
-    if (!full()) _data.push(c);
-  }
-
-  constexpr maybe<C> pop() { return _data.pop(); }
-};
+using string =  vector<C>;
 
 template <character C>
-class ext_string {
- private:
-  ext_vector<C> _data{10};
-
- public:
-  constexpr ~ext_string() = default;
-  constexpr ext_string() = default;
-  constexpr ext_string(size_t max) : _data(max + 1) {}
-  // move
-  constexpr ext_string(ext_string&&) = default;
-  constexpr ext_string& operator=(ext_string&&) = default;
-
-  // copy
-  constexpr ext_string(const ext_string&) = default;
-  constexpr ext_string& operator=(const ext_string&) = default;
-
- public:
-  constexpr auto iter() { return _data.iter(); }
-  constexpr auto iter() const { return _data.iter(); }
-
-  constexpr auto riter() { _data.riter(); }
-  constexpr auto riter() const { _data.riter(); }
-
- public:
-  constexpr auto max() const { return _data.max() - 1; }
-  constexpr auto size() const { return _data.size(); }
-  constexpr bool empty() const { return _data.empty(); }
-  constexpr bool full() const { return size() == max(); }
-
-  constexpr void push(C c) {
-    if (full()) {
-      auto tmp = transfer(_data);
-      _data = ext_vector<C>(_data.size() * 2 + 10);
-      auto itmp = tmp.iter();
-
-      while (itmp.has_next()) _data.push(itmp.next());
-    }
-
-    _data.push(c);
-  }
-
-  constexpr maybe<C> pop() { return _data.pop(); }
-};
+using ext_string = ext_vector<C>;
 
 }  // namespace n
 
