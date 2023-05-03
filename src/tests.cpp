@@ -422,70 +422,60 @@ void should_not_overflow_on_push() {
 
 int main() {
   n::string_view<char> sv = "coucuo";
-
-  auto isv = sv.iter();
-  while (isv.has_next()) {
-    printf("%c\n", isv.next());
-  }
-
-
   n::string_view<char> fmt = "   $! ";
-
-  n::string<char> s2(10);
-  s2.push('a');
-  s2.push('b');
-  n::ext_string<char> s3;
-  n::format_to(s3, fmt, s2.iter());
+  n::static_string<char, 20> s3;
+  n::format_to(s3, fmt, sv.iter());
 
   n::for_each(s3.iter(), [](char c) { printf("%c", c); });
   printf("\n");
-  /*
-    test::algo::should_find_an_item();
-    test::algo::should_apply_function_foreach_item();
-    test::maybe::should_be_empty();
-    test::maybe::should_be_valued();
-    test::maybe::should_map_new_value();
 
-    test::static_vector::should_be_empty();
-    test::static_vector::should_contain_one_item();
-    test::static_vector::should_contain_three_item();
-    test::static_vector::should_be_full();
-    test::static_vector::should_be_popable();
-    test::static_vector::should_be_iterable();
-    test::static_vector::should_be_reverse_iterable();
+  test::algo::should_find_an_item();
+  test::algo::should_apply_function_foreach_item();
+  test::maybe::should_be_empty();
+  test::maybe::should_be_valued();
+  test::maybe::should_map_new_value();
 
-    test::vector::should_be_empty();
-    test::vector::should_contain_one_item();
-    test::vector::should_contain_three_item();
-    test::vector::should_be_full();
-    test::vector::should_be_popable();
-    test::vector::should_be_iterable();
-    test::vector::should_be_reverse_iterable();
+  test::static_vector::should_be_empty();
+  test::static_vector::should_contain_one_item();
+  test::static_vector::should_contain_three_item();
+  test::static_vector::should_be_full();
+  test::static_vector::should_be_popable();
+  test::static_vector::should_be_iterable();
+  test::static_vector::should_be_reverse_iterable();
 
-    test::ext_vector::should_be_empty();
-    test::ext_vector::should_contain_one_item();
-    test::ext_vector::should_contain_three_item();
-    test::ext_vector::should_be_full();
-    test::ext_vector::should_be_popable();
-    test::ext_vector::should_be_iterable();
-    test::ext_vector::should_be_reverse_iterable();
+  test::vector::should_be_empty();
+  test::vector::should_contain_one_item();
+  test::vector::should_contain_three_item();
+  test::vector::should_be_full();
+  test::vector::should_be_popable();
+  test::vector::should_be_iterable();
+  test::vector::should_be_reverse_iterable();
 
-    test::static_string::should_be_empty();
-    test::static_string::should_be_full();
-    test::static_string::should_have_three_items();
-    test::static_string::should_be_popable();
-    test::static_string::should_not_overflow_on_push();
+  test::ext_vector::should_be_empty();
+  test::ext_vector::should_contain_one_item();
+  test::ext_vector::should_contain_three_item();
+  test::ext_vector::should_be_full();
+  test::ext_vector::should_be_popable();
+  test::ext_vector::should_be_iterable();
+  test::ext_vector::should_be_reverse_iterable();
 
-    test::string::should_be_empty();
-    test::string::should_be_full();
-    test::string::should_have_three_items();
-    test::string::should_be_popable();
-    test::string::should_not_overflow_on_push();
+  test::static_string::should_be_empty();
+  test::static_string::should_be_full();
+  test::static_string::should_have_three_items();
+  test::static_string::should_be_popable();
+  test::static_string::should_not_overflow_on_push();
 
-    test::ext_string::should_be_empty();
-    test::ext_string::should_be_full();
-    test::ext_string::should_have_three_items();
-    test::ext_string::should_be_popable();
-    test::ext_string::should_not_overflow_on_push();
-  */
+  test::string::should_be_empty();
+  test::string::should_be_full();
+  test::string::should_have_three_items();
+  test::string::should_be_popable();
+  test::string::should_not_overflow_on_push();
+
+  test::ext_string::should_be_empty();
+  test::ext_string::should_be_full();
+  test::ext_string::should_have_three_items();
+  test::ext_string::should_be_popable();
+  test::ext_string::should_not_overflow_on_push();
+
+  printf("coucou\n");
 }

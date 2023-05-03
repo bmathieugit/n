@@ -10,35 +10,6 @@ template <typename C>
 concept character = same_as<C, char> || same_as<C, wchar_t>;
 
 template <character C>
-class string_view_iterator {
- private:
-  const C* _begin;
-  const C* _end;
-
- public:
-  constexpr string_view_iterator(const C* begin, const C* end)
-      : _begin(begin), _end(end) {}
-
-  constexpr bool has_next() const { return _begin != _end; }
-  constexpr const C next() { return *(_begin++); }
-};
-
-template <character C>
-class string_view_riterator {
- private:
-  const C* _begin;
-  const C* _end;
-
- public:
-  constexpr string_view_riterator(const C* begin, const C* end)
-      : _begin(begin == nullptr ? nullptr : begin - 1),
-        _end(end == nullptr ? nullptr : end - 1) {}
-
-  constexpr bool has_next() const { return _begin != _end; }
-  constexpr const C next() { return *(_end--); }
-};
-
-template <character C>
 class string_view {
  private:
   const C* _begin = nullptr;
@@ -64,15 +35,17 @@ class string_view {
   constexpr string_view(const C* begin, size_t len)
       : _begin(begin), _end(begin + len) {}
 
+  // move
   constexpr string_view(string_view&&) = default;
   constexpr string_view& operator=(string_view&&) = default;
 
+  // copy
   constexpr string_view(const string_view&) = default;
   constexpr string_view& operator=(const string_view&) = default;
 
  public:
-  constexpr auto iter() const { return string_view_iterator(_begin, _end); }
-  constexpr auto riter() const { return string_view_riterator(_begin, _end); }
+  constexpr auto iter() const { return vector_iterator(_begin, _end); }
+  constexpr auto riter() const { return reverse_vector_iterator(_begin, _end); }
 
  public:
   constexpr auto size() const { return _end - _begin; }

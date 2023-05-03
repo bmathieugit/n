@@ -16,8 +16,7 @@ class vector_iterator {
 
  public:
   constexpr vector_iterator() = default;
-  constexpr vector_iterator(T *begin, size_t n)
-      : _begin(begin), _end(begin + n) {}
+  constexpr vector_iterator(T *begin, T *end) : _begin(begin), _end(end) {}
 
  public:
   constexpr bool has_next() const { return _begin != _end; }
@@ -33,11 +32,45 @@ class reverse_vector_iterator {
  public:
   constexpr reverse_vector_iterator() = default;
   constexpr reverse_vector_iterator(T *begin, T *end)
-      : _begin(begin), _end(end) {}
+      : _begin(begin == nullptr ? nullptr : begin - 1),
+        _end(end == nullptr ? nullptr : end - 1) {}
 
  public:
   constexpr bool has_next() const { return _begin != _end; }
-  constexpr T &next() { return *(_begin--); }
+  constexpr T &next() { return *(_end--); }
+};
+
+template <typename T>
+class vector_view {
+ private:
+  const T *_begin = nullptr;
+  const T *_end = nullptr;
+
+ public:
+  constexpr ~vector_view() = default;
+  constexpr vector_view() = default;
+  constexpr vector_view(const T *begin, const T *end)
+      : _begin(begin), _end(end) {}
+  constexpr vector_view(const T *begin, size_t len)
+      : _begin(begin), _end(begin + len) {}
+
+  // move
+  constexpr vector_view(vector_view &&) = default;
+  constexpr vector_view &operator=(vector_view &&) = default;
+
+  // copy
+  constexpr vector_view(const vector_view &) = default;
+  constexpr vector_view &operator=(const vector_view &) = default;
+
+ public:
+  constexpr auto iter() const { return vector_iterator<const T>(_begin, _end); }
+  constexpr auto riter() const {
+    return reverse_vector_iterator<const T>(_begin, _end);
+  }
+
+ public:
+  constexpr auto size() const { return _end - _begin; }
+  constexpr auto empty() const { return size() == 0; }
 };
 
 template <typename T, size_t N>
@@ -65,15 +98,17 @@ class static_vector {
   constexpr auto full() const { return _size == N; }
 
  public:
-  constexpr auto iter() { return vector_iterator<T>(_data, _size); }
-  constexpr auto iter() const { return vector_iterator<const T>(_data, _size); }
+  constexpr auto iter() { return vector_iterator<T>(_data, _data + _size); }
+  constexpr auto iter() const {
+    return vector_iterator<const T>(_data, _data + _size);
+  }
 
   constexpr auto riter() {
-    return reverse_vector_iterator<T>(_data + _size - 1, _data - 1);
+    return reverse_vector_iterator<T>(_data, _data + _size);
   }
 
   constexpr auto riter() const {
-    return reverse_vector_iterator<const T>(_data + _size - 1, _data - 1);
+    return reverse_vector_iterator<const T>(_data, _data + _size);
   }
 
   constexpr T &operator[](size_t i) {
@@ -133,16 +168,18 @@ class vector {
   constexpr vector &operator=(const vector &) = default;
 
  public:
-  constexpr auto iter() { return vector_iterator<T>(_data, _size); }
+  constexpr auto iter() { return vector_iterator<T>(_data, _data + _size); }
 
-  constexpr auto iter() const { return vector_iterator<const T>(_data, _size); }
+  constexpr auto iter() const {
+    return vector_iterator<const T>(_data, _data + _size);
+  }
 
   constexpr auto riter() {
-    return reverse_vector_iterator<T>(_data + _size - 1, _data - 1);
+    return reverse_vector_iterator<T>(_data, _data + _size);
   }
 
   constexpr auto riter() const {
-    return reverse_vector_iterator<const T>(_data + _size - 1, _data - 1);
+    return reverse_vector_iterator<const T>(_data, _data + _size);
   }
 
   constexpr T &operator[](size_t i) {
@@ -222,7 +259,7 @@ class ext_vector {
   }
 
  public:
-  constexpr auto max() const {return _data.max();}
+  constexpr auto max() const { return _data.max(); }
   constexpr auto size() const { return _data.size(); }
   constexpr auto empty() const { return _data.empty(); }
   constexpr auto full() const { return _data.full(); }
