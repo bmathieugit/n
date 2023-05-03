@@ -418,18 +418,30 @@ void should_not_overflow_on_push() {
 }
 }  // namespace test::ext_string
 
-// #include <n/format.hpp>
+namespace test::vector_view {
+void should_be_empty();
+void should_be_iterable();
+void should_have_a_size_of_5();
+}  // namespace test::vector_view
 
-struct person{};
+namespace test::string_view {
+void should_be_empty();
+void should_be_iterable();
+void should_have_a_size_of_5();
+}  // namespace test::string_view
+
+// #include <n/format.hpp>
+#include <n/iofile.hpp>
+
+struct person {};
 
 int main() {
   n::string_view<char> sv = "coucuo";
   n::string_view<char> fmt = "   $! ";
   n::static_string<char, 20> s3;
-  n::format_to(s3, fmt, sv.iter());
+  n::format_to(n::stdw, fmt, sv.iter());
+  
 
-  n::for_each(s3.iter(), [](char c) { printf("%c", c); });
-  printf("\n");
 
   test::algo::should_find_an_item();
   test::algo::should_apply_function_foreach_item();

@@ -91,6 +91,13 @@ class static_vector {
   constexpr static_vector(const static_vector &) = default;
   constexpr static_vector &operator=(const static_vector &) = default;
 
+  // iterator
+  constexpr static_vector(iterator auto i) {
+    while (i.has_next() && !full()) {
+      push(i.next());
+    }
+  }
+
  public:
   constexpr auto max() const { return N; }
   constexpr auto size() const { return _size; }
@@ -167,6 +174,11 @@ class vector {
   constexpr vector(const vector &o) = default;
   constexpr vector &operator=(const vector &) = default;
 
+  // iterator
+  constexpr vector(iterator auto i) {
+    while (i.has_next() && !full()) push(i.next());
+  }
+
  public:
   constexpr auto iter() { return vector_iterator<T>(_data, _data + _size); }
 
@@ -241,6 +253,11 @@ class ext_vector {
   // copy
   constexpr ext_vector(const ext_vector &) = default;
   constexpr ext_vector &operator=(const ext_vector &) = default;
+
+  // iterator
+  constexpr ext_vector(iterator auto i) {
+    while (i.has_next() && !full()) push(i.next());
+  }
 
  public:
   constexpr auto iter() { return _data.iter(); }
