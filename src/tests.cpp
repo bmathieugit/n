@@ -436,6 +436,9 @@ void should_have_a_size_of_5();
 struct person {};
 
 int main() {
+  
+  //n::printf("coucou $ !", n::string_view("toto"));
+
   n::string_view<char> sv = "coucuo";
   n::string_view<char> fmt = "   $! ";
   n::static_string<char, 20> s3;

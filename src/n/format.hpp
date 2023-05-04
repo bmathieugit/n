@@ -138,15 +138,6 @@ class formatter<bool> {
   }
 };
 
-template <pointer_eq P>
-class formatter<P> {
- public:
-  template <ostream O>
-  constexpr static void to(O &os, P p) {
-    format_one_to(os, (size_t)(void *)(p));
-  }
-};
-
 template <iterator I>
 class formatter<I> {
  public:
@@ -156,6 +147,62 @@ class formatter<I> {
       auto c = i.next();
       o.push(c);
     }
+  }
+};
+
+template <character C>
+class formatter<string_view<C>> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &o, string_view<C> s) {
+    formatter<decltype(s.iter())>::to(o, s.iter());
+  }
+};
+/*
+template <character C, size_t N>
+class formatter<const C[N]> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &o, const C (&s)[N]) {
+    formatter<string_view<C>>::to(o, string_view<C>(s));
+  }
+};
+
+template <character C, size_t N>
+class formatter<C[N]> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &o, C (&s)[N]) {
+    formatter<string_view<C>>::to(o, string_view<C>(s));
+  }
+};
+*/
+template <character C>
+class formatter<C *> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &o, C *s) {
+    formatter<string_view<C>>::to(o, string_view<C>(s));
+  }
+};
+
+
+
+template <character C>
+class formatter<const C *> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &o, const C *s) {
+    formatter<string_view<C>>::to(o, string_view<C>(s));
+  }
+};
+
+template <pointer_eq P>
+class formatter<P> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &os, P p) {
+    format_one_to(os, (size_t)(void *)(p));
   }
 };
 

@@ -3,7 +3,9 @@
 
 #include <stdio.h>
 
+#include <n/format.hpp>
 #include <n/maybe.hpp>
+#include <n/string.hpp>
 #include <n/vector.hpp>
 
 namespace n {
@@ -115,6 +117,17 @@ class file {
 static auto stdr = file<char, mode::std_in>(stdin);
 static auto stdw = file<char, mode::std_out>(stdout);
 
+namespace impl {
+template <character C, formattable... T>
+void printf(string_view<C> fmt, const T &...t) {
+  format_to(stdw, fmt, t...);
+}
+}  // namespace impl
+
+template<formattable... T>
+void printf(string_view<char> fmt, const T&...t) {
+  impl::printf(fmt, t...);
+}
 
 }  // namespace n
 
