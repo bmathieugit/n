@@ -158,25 +158,7 @@ class formatter<string_view<C>> {
     formatter<decltype(s.iter())>::to(o, s.iter());
   }
 };
-/*
-template <character C, size_t N>
-class formatter<const C[N]> {
- public:
-  template <ostream O>
-  constexpr static void to(O &o, const C (&s)[N]) {
-    formatter<string_view<C>>::to(o, string_view<C>(s));
-  }
-};
 
-template <character C, size_t N>
-class formatter<C[N]> {
- public:
-  template <ostream O>
-  constexpr static void to(O &o, C (&s)[N]) {
-    formatter<string_view<C>>::to(o, string_view<C>(s));
-  }
-};
-*/
 template <character C>
 class formatter<C *> {
  public:
@@ -186,7 +168,14 @@ class formatter<C *> {
   }
 };
 
-
+template <character C, size_t N>
+class formatter<C[N]> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &o, const C (&s)[N]) {
+    formatter<string_view<C>>::to(o, s);
+  }
+};
 
 template <character C>
 class formatter<const C *> {
@@ -194,6 +183,15 @@ class formatter<const C *> {
   template <ostream O>
   constexpr static void to(O &o, const C *s) {
     formatter<string_view<C>>::to(o, string_view<C>(s));
+  }
+};
+
+template <character C, size_t N>
+class formatter<const C[N]> {
+ public:
+  template <ostream O>
+  constexpr static void to(O &o, const C (&s)[N]) {
+    formatter<string_view<C>>::to(o, s);
   }
 };
 

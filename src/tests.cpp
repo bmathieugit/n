@@ -443,7 +443,7 @@ int main() {
   n::string_view<char> fmt = "   $! ";
   n::static_string<char, 20> s3;
   n::format_to(n::stdw, fmt, sv.iter());
-  
+  n::format_to(n::stdw, fmt, "coucou2");  
 
 
   test::algo::should_find_an_item();
