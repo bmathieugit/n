@@ -7,36 +7,122 @@
 #include <n/utils.hpp>
 
 namespace n {
-
+/**
+ * @brief An iterator over a range of elements stored contiguously in memory.
+ *
+ * @tparam T The type of the elements stored in the range.
+ */
 template <typename T>
 class vector_iterator {
  private:
-  T *_begin = nullptr;
-  T *_end = nullptr;
+  T *_begin = nullptr; /**< A pointer to the beginning of the range. */
+  T *_end = nullptr;   /**< A pointer to the end of the range. */
 
  public:
+  /**
+   * @brief Construct an empty iterator.
+   *
+   * This constructor creates an iterator with no associated range.
+   */
   constexpr vector_iterator() = default;
+
+  /**
+   * @brief Construct an iterator for a given range.
+   *
+   * @param begin A pointer to the beginning of the range.
+   * @param end A pointer to the end of the range.
+   *
+   * This constructor creates an iterator that is associated with the range of
+   * elements in memory beginning at the address pointed to by `begin` and
+   * ending at the address pointed to by `end`.
+   *
+   * @note The behavior is undefined if `begin` is greater than `end`.
+   */
   constexpr vector_iterator(T *begin, T *end) : _begin(begin), _end(end) {}
 
  public:
+  /**
+   * @brief Check whether there are more elements in the range.
+   *
+   * @return `true` if there are more elements in the range, `false` otherwise.
+   *
+   * This function returns `true` if there are more elements in the range that
+   * can be accessed using the `next()` function, and `false` otherwise.
+   */
   constexpr bool has_next() const { return _begin != _end; }
+
+  /**
+   * @brief Get the next element in the range.
+   *
+   * @return A reference to the next element in the range.
+   *
+   * This function returns a reference to the next element in the range, and
+   * advances the internal pointer to the next element in the range.
+   *
+   * @note The behavior is undefined if there are no more elements in the range.
+   */
   constexpr T &next() { return *(_begin++); }
 };
 
+/**
+ * @brief An iterator over a range of elements stored contiguously in memory, in
+ * reverse order.
+ *
+ * @tparam T The type of the elements stored in the range.
+ */
 template <typename T>
 class reverse_vector_iterator {
  private:
-  T *_begin = nullptr;
-  T *_end = nullptr;
+  T *_begin = nullptr; /**< A pointer to the beginning of the range. */
+  T *_end = nullptr;   /**< A pointer to the end of the range. */
 
  public:
+  /**
+   * @brief Construct an empty iterator.
+   *
+   * This constructor creates an iterator with no associated range.
+   */
   constexpr reverse_vector_iterator() = default;
+
+  /**
+   * @brief Construct an iterator for a given range.
+   *
+   * @param begin A pointer to the beginning of the range.
+   * @param end A pointer to the end of the range.
+   *
+   * This constructor creates an iterator that is associated with the range of
+   * elements in memory beginning at the address pointed to by `begin` and
+   * ending at the address pointed to by `end`, but iterates over the range in
+   * reverse order.
+   *
+   * @note The behavior is undefined if `begin` is greater than `end`.
+   */
   constexpr reverse_vector_iterator(T *begin, T *end)
       : _begin(begin == nullptr ? nullptr : begin - 1),
         _end(end == nullptr ? nullptr : end - 1) {}
 
  public:
+  /**
+   * @brief Check whether there are more elements in the range.
+   *
+   * @return `true` if there are more elements in the range, `false` otherwise.
+   *
+   * This function returns `true` if there are more elements in the range that
+   * can be accessed using the `next()` function, and `false` otherwise.
+   */
   constexpr bool has_next() const { return _begin != _end; }
+
+  /**
+   * @brief Get the next element in the range, in reverse order.
+   *
+   * @return A reference to the next element in the range, in reverse order.
+   *
+   * This function returns a reference to the next element in the range, in
+   * reverse order, and advances the internal pointer to the next element in the
+   * range.
+   *
+   * @note The behavior is undefined if there are no more elements in the range.
+   */
   constexpr T &next() { return *(_end--); }
 };
 
