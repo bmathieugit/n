@@ -432,19 +432,15 @@ void should_have_a_size_of_5();
 
 // #include <n/format.hpp>
 #include <n/iofile.hpp>
-
-struct person {};
+#include <n/tests.hpp>
 
 int main() {
-  
-  //n::printf("coucou $ !", n::string_view("toto"));
-
-  n::string_view<char> sv = "coucuo";
-  n::string_view<char> fmt = "   $! ";
-  n::static_string<char, 20> s3;
-  n::format_to(n::stdw, fmt, sv.iter());
-  n::format_to(n::stdw, fmt, "coucou2");  
-
+  verbose = true;
+  BEGIN_TEST_SUITE(first_test_suite)
+  TEST(test add in c++)
+  ASSERT(1 + 1 == 2)
+  ASSERT(1 + 1 == 3)
+  END_TEST_SUITE
 
   test::algo::should_find_an_item();
   test::algo::should_apply_function_foreach_item();

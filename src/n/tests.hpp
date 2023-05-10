@@ -1,88 +1,32 @@
 #ifndef __n_tests_hpp__
 #define __n_tests_hpp__
 
-#include <n/format.hpp>
-#include <n/iofile.hpp>
-#include <n/string.hpp>
-#include <n/vector.hpp>
+#include <stdbool.h>
+#include <stdio.h>
 
-namespace n {
-struct Test {
-  std::string name;
-  void (*func)();
-  Test(const std::string& name, void (*func)()) : name(name), func(func) {}
-};
+// Variables globales pour le rapport de test
+static int tests_passed = 0;
+static int tests_failed = 0;
+static bool verbose = false;
 
-struct AssertionResult {
-  std::string message;
-  bool passed;
-};
+#define BEGIN_TEST_SUITE(suite_name) \
+  printf("\033[1m========== Test Suite: %s ==========\033[0m\n\n", #suite_name);
 
-template <typename T>
-AssertionResult AssertEqual(const T& actual, const T& expected,
-                            const std::string& message = "") {
-  if (actual == expected) {
-    return {"", true};
-  } else {
-    std::string result_message = "Assertion failed: " + message +
-                                 "\n"
-                                 "  Expected: " +
-                                 std::to_string(expected) +
-                                 "\n"
-                                 "  Actual: " +
-                                 std::to_string(actual) + "\n";
-    return {result_message, false};
-  }
-}
+#define END_TEST_SUITE                              \
+  printf("\n\033[1m========== Test Suite Results ==========\033[0m\n\n"); \
+  printf("\t - \033[32mTests passed: %d\033[0m\n", tests_passed);       \
+  printf("\t - \033[31mTests failed: %d\033[0m\n", tests_failed);
 
-class TestRunner {
- public:
-  void AddTest(const std::string& name, void (*func)()) {
-    tests_.emplace_back(name, func);
-  }
+#define TEST(test_name) printf("- \033[1mTest: %s ... \033[0m\n", #test_name);
 
-  void Run() {
-    int passed = 0, failed = 0;
-    for (const auto& test : tests_) {
-      const AssertionResult test_result = RunTest(test);
-      if (test_result.passed) {
-        std::cerr << test.name << " PASSED\n";
-        ++passed;
-      } else {
-        std::cerr << test.name << " FAILED\n"
-                  << test_result.message << std::endl;
-        ++failed;
-      }
-    }
-    std::cerr << "Tests passed: " << passed << ", tests failed: " << failed
-              << '\n';
-  }
-
- private:
-  std::vector<Test> tests_;
-
-  AssertionResult RunTest(const Test& test) {
-    try {
-      test.func();
-      return {"", true};
-    } catch (const AssertionResult& ar) {
-      return ar;
-    }
-  }
-};
-}  // namespace n
-
-#define ASSERT_EQUAL(actual, expected)                                    \
-  do {                                                                    \
-    const auto& ar =                                                      \
-        TestLib::AssertEqual(actual, expected, #actual " != " #expected); \
-    if (!ar.passed) {                                                     \
-      throw ar;                                                           \
-    }                                                                     \
-  } while (false)
-
-#define RUN_TESTS()           \
-  TestLib::TestRunner{}.Run() \
+#define ASSERT(assertion)                 \
+  if (verbose) printf("\t" #assertion " :  "); \
+  if (assertion) {                        \
+    printf("\t\033[32mPASSED\033[0m\n");    \
+    tests_passed++;                       \
+  } else {                                \
+    printf("\t\033[31mFAILED\033[0m\n");    \
+    tests_failed++;                       \
   }
 
 #endif
