@@ -1,5 +1,5 @@
-#ifndef __n_iofile_hpp__
-#define __n_iofile_hpp__
+#ifndef __n_io_hpp__
+#define __n_io_hpp__
 
 #include <stdio.h>
 
