@@ -1,15 +1,15 @@
+#include <n/string.hpp>
 #include <n/tests.hpp>
-#include <n/vector.hpp>
 
 void test_empty() {
-  n::static_vector<int, 5> v;
+  n::static_string<char, 5> v;
   N_TEST_ASSERT_TRUE(v.empty());
   N_TEST_ASSERT_EQUALS(v.size(), 0);
   N_TEST_ASSERT_EQUALS(v.max(), 5);
 }
 
 void test_push_and_size() {
-  n::static_vector<int, 5> v;
+  n::static_string<char, 5> v;
   v.push(1);
   N_TEST_ASSERT_FALSE(v.empty());
   N_TEST_ASSERT_EQUALS(v.size(), 1);
@@ -18,7 +18,7 @@ void test_push_and_size() {
 }
 
 void test_push_and_index_operator() {
-  n::static_vector<int, 5> v;
+  n::static_string<char, 5> v;
   v.push(1);
   v.push(2);
   N_TEST_ASSERT_EQUALS(v[0], 1);
@@ -28,13 +28,13 @@ void test_push_and_index_operator() {
 /*
 TODO: fixer ce test
    void test_push_move() {
-  n::static_vector<std::unique_ptr<int>, 5> v;
+  n::static_string<std::unique_ptr<int>, 5> v;
   v.push(std::make_unique<int>(1));
   N_TEST_ASSERT_EQUALS(*v[0], 1);
 }*/
 
 void test_pop() {
-  n::static_vector<int, 5> v;
+  n::static_string<char, 5> v;
   v.push(1);
   auto item = v.pop();
   N_TEST_ASSERT_TRUE(item.has());
@@ -44,7 +44,7 @@ void test_pop() {
 }
 
 void test_clear() {
-  n::static_vector<int, 5> v;
+  n::static_string<char, 5> v;
   v.push(1);
   v.push(2);
   v.clear();
@@ -53,7 +53,7 @@ void test_clear() {
 }
 
 void test_iterator() {
-  n::static_vector<int, 5> v;
+  n::static_string<char, 5> v;
   v.push(1);
   v.push(2);
   v.push(3);
@@ -65,7 +65,7 @@ void test_iterator() {
 }
 
 void test_reverse_iterator() {
-  n::static_vector<int, 5> v;
+  n::static_string<char, 5> v;
   v.push(1);
   v.push(2);
   v.push(3);
@@ -79,14 +79,14 @@ void test_reverse_iterator() {
 //////////////////////////////
 namespace vec {
 void test_empty() {
-  n::vector<int> v(5);
+  n::string<char> v(5);
   N_TEST_ASSERT_TRUE(v.empty());
   N_TEST_ASSERT_EQUALS(v.size(), 0);
   N_TEST_ASSERT_EQUALS(v.max(), 5);
 }
 
 void test_push_and_size() {
-  n::vector<int> v(5);
+  n::string<char> v(5);
   v.push(1);
   N_TEST_ASSERT_FALSE(v.empty());
   N_TEST_ASSERT_EQUALS(v.size(), 1);
@@ -95,7 +95,7 @@ void test_push_and_size() {
 }
 
 void test_push_and_index_operator() {
-  n::vector<int> v(5);
+  n::string<char> v(5);
   v.push(1);
   v.push(2);
   N_TEST_ASSERT_EQUALS(v[0], 1);
@@ -105,13 +105,13 @@ void test_push_and_index_operator() {
 /*
   TODO: fixer ce test
    void test_push_move() {
-  n::vector<std::unique_ptr<int>> v(5);
+  n::string<std::unique_ptr<int>> v(5);
   v.push(std::make_unique<int>(1));
   N_TEST_ASSERT_EQUALS(*v[0], 1);
 }
 */
 void test_pop() {
-  n::vector<int> v(5);
+  n::string<char> v(5);
   v.push(1);
   auto item = v.pop();
   N_TEST_ASSERT_TRUE(item.has());
@@ -120,7 +120,7 @@ void test_pop() {
 }
 
 void test_clear() {
-  n::vector<int> v(5);
+  n::string<char> v(5);
   v.push(1);
   v.push(2);
   v.clear();
@@ -129,7 +129,7 @@ void test_clear() {
 }
 
 void test_iterator() {
-  n::vector<int> v(5);
+  n::string<char> v(5);
   v.push(1);
   v.push(2);
   v.push(3);
@@ -141,7 +141,7 @@ void test_iterator() {
 }
 
 void test_reverse_iterator() {
-  n::vector<int> v(5);
+  n::string<char> v(5);
   v.push(1);
   v.push(2);
   v.push(3);
@@ -155,14 +155,14 @@ void test_reverse_iterator() {
 
 namespace ext {
 void test_empty() {
-  n::ext_vector<int> v(5);
+  n::ext_string<char> v(5);
   N_TEST_ASSERT_TRUE(v.empty());
   N_TEST_ASSERT_EQUALS(v.size(), 0);
   N_TEST_ASSERT_EQUALS(v.max(), 5);
 }
 
 void test_push_and_size() {
- n::ext_vector<int> v(5);
+ n::ext_string<char> v(5);
   v.push(1);
   N_TEST_ASSERT_FALSE(v.empty());
   N_TEST_ASSERT_EQUALS(v.size(), 1);
@@ -171,7 +171,7 @@ void test_push_and_size() {
 }
 
 void test_push_and_index_operator() {
-  n::ext_vector<int> v(5);
+  n::ext_string<char> v(5);
   v.push(1);
   v.push(2);
   N_TEST_ASSERT_EQUALS(v[0], 1);
@@ -179,13 +179,13 @@ void test_push_and_index_operator() {
 }
 /* TODO fixer ce test
 void test_push_move() {
-  ext::ext_vector<std::unique_ptr<int>> v(5);
+  ext::ext_string<std::unique_ptr<int>> v(5);
   v.push(std::make_unique<int>(1));
   N_TEST_ASSERT_EQUALS(*v[0], 1);
 }*/
 
 void test_pop() {
-  n::ext_vector<int> v(5);
+  n::ext_string<char> v(5);
   v.push(1);
   auto item = v.pop();
   N_TEST_ASSERT_TRUE(item.has());
@@ -194,7 +194,7 @@ void test_pop() {
 }
 
 void test_clear() {
-  n::ext_vector<int> v(5);
+  n::ext_string<char> v(5);
   v.push(1);
   v.push(2);
   v.clear();
@@ -203,7 +203,7 @@ void test_clear() {
 }
 
 void test_iterator() {
-  n::ext_vector<int> v(5);
+  n::ext_string<char> v(5);
   v.push(1);
   v.push(2);
   v.push(3);
@@ -215,7 +215,7 @@ void test_iterator() {
 }
 
 void test_reverse_iterator() {
-  n::ext_vector<int> v(5);
+  n::ext_string<char> v(5);
   v.push(1);
   v.push(2);
   v.push(3);
@@ -227,7 +227,7 @@ void test_reverse_iterator() {
 }
 
 void test_push_when_full() {
-  n::ext_vector<int> v(2);
+  n::ext_string<char> v(2);
   v.push(1);
   v.push(2);
   v.push(3);
@@ -237,7 +237,7 @@ void test_push_when_full() {
 
 }  // namespace ext
 int main() {
-  N_TEST_SUITE("StaticVector Tests")
+  N_TEST_SUITE("StaticString Tests")
   N_TEST_REGISTER(test_empty);
   N_TEST_REGISTER(test_push_and_size);
   N_TEST_REGISTER(test_push_and_index_operator);
@@ -248,7 +248,7 @@ int main() {
   N_TEST_REGISTER(test_reverse_iterator);
   N_TEST_RUN_SUITE
 
-  N_TEST_SUITE("Vector Tests")
+  N_TEST_SUITE("String Tests")
   N_TEST_REGISTER(vec::test_empty);
   N_TEST_REGISTER(vec::test_push_and_size);
   N_TEST_REGISTER(vec::test_push_and_index_operator);
@@ -259,7 +259,7 @@ int main() {
   N_TEST_REGISTER(vec::test_reverse_iterator);
   N_TEST_RUN_SUITE
 
-  N_TEST_SUITE("ExtVector Tests")
+  N_TEST_SUITE("ExtString Tests")
   N_TEST_REGISTER(ext::test_empty);
   N_TEST_REGISTER(ext::test_push_and_size);
   N_TEST_REGISTER(ext::test_push_and_index_operator);

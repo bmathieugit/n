@@ -133,7 +133,6 @@ class test_suite {
 
     int succeed = 0;
     int failed = 0;
-    int total = _tests.size();
 
     ::snprintf(buffer, MAX - 1, "\nSUITE [%s] ", _name);
     str::padln(buffer, '*');
@@ -156,8 +155,8 @@ class test_suite {
     ::snprintf(buffer, MAX - 1, "\nSUITE RECAP ");
     str::padln(buffer, '*');
     ::printf("%s", buffer);
-    ::printf(" - Passed : \033[1;32m%d/%d\033[0m\n", succeed, total);
-    ::printf(" - Failed : \033[1;31m%d/%d\033[0m\n", failed, total);
+    ::printf(" - Passed : \033[1;32m%d\033[0m\n", succeed);
+    ::printf(" - Failed : \033[1;31m%d\033[0m\n", failed);
 
     ::printf("\n");
   }

@@ -16,13 +16,19 @@ clean:
 building:
 	mkdir -p building
 
-test-vector: src/tests-vector.cpp building
+tests-maybe: src/tests-maybe.cpp building
+	${CXX} -o  building/tests-maybe.app src/tests-maybe.cpp ${CXXFLAGS} ${CXXINCS}
+	./building/tests-maybe.app	
+
+tests-string: src/tests-string.cpp building
+	${CXX} -o  building/tests-string.app src/tests-string.cpp ${CXXFLAGS} ${CXXINCS}
+	./building/tests-string.app	
+
+tests-vector: src/tests-vector.cpp building
 	${CXX} -o  building/tests-vector.app src/tests-vector.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests-vector.app	
 
-test: src/tests.cpp compile
-	${CXX} -o building/tests.app src/tests.cpp ${CXXFLAGS} ${CXXINCS}
-	./building/tests.app
+test: tests-vector tests-maybe tests-string
 
 install: 
 	mkdir -p dist
