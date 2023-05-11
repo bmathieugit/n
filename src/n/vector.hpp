@@ -300,7 +300,6 @@ class vector {
   constexpr void push(const T &t) {
     if (!full()) {
       _data[_size++] = t;
-      _size += 1;
     }
   }
 

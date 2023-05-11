@@ -28,7 +28,12 @@ tests-vector: src/tests-vector.cpp building
 	${CXX} -o  building/tests-vector.app src/tests-vector.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests-vector.app	
 
-test: tests-vector tests-maybe tests-string
+tests-format: src/tests-format.cpp building
+	${CXX} -o  building/tests-format.app src/tests-format.cpp ${CXXFLAGS} ${CXXINCS}
+	./building/tests-format.app	
+
+
+test: tests-vector tests-maybe tests-string tests-format
 
 install: 
 	mkdir -p dist

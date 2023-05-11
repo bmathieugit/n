@@ -1,6 +1,8 @@
 #ifndef __n_format_hpp__
 #define __n_format_hpp__
 
+#include <stdio.h>
+
 #include <n/string.hpp>
 #include <n/utils.hpp>
 
@@ -16,12 +18,12 @@ template <typename T>
 concept ostream =
     requires(T t) { t.push('c'); } || requires(T t) { t.push(wchar_t('c')); };
 
-namespace impl {
-
 template <ostream O, formattable T>
 constexpr void format_one_to(O &o, const T &t) {
   formatter<rm_cvref<T>>::to(o, t);
 }
+
+namespace impl {
 
 template <ostream O, typename I, formattable T>
 constexpr void format_to_one_by_one(O &o, I &ifmt, const T &t) {
@@ -41,8 +43,9 @@ constexpr void format_to_one_by_one(O &o, I &ifmt, const T &t) {
 template <character C, ostream O, formattable... T>
 constexpr void format_to(O &o, string_view<C> fmt, const T &...t) {
   auto ifmt = fmt.iter();
+
   (format_to_one_by_one(o, ifmt, t), ...);
-  while (ifmt.has_next()) format_one_to(o, ifmt.next());
+  format_one_to(o, ifmt);
 }
 
 }  // namespace impl
@@ -61,8 +64,8 @@ template <character C>
 class formatter<C> {
  public:
   template <ostream O>
-  constexpr static void to(O &os, C o) {
-    os.push(o);
+  constexpr static void to(O &os, C c) {
+    os.push(c);
   }
 };
 
@@ -144,8 +147,7 @@ class formatter<I> {
   template <ostream O>
   constexpr static void to(O &o, I i) {
     while (i.has_next()) {
-      auto c = i.next();
-      o.push(c);
+      format_one_to(o, i.next());
     }
   }
 };
