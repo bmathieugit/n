@@ -37,26 +37,6 @@ void should_apply_function_foreach_item() {
 }
 }  // namespace test::algo
 
-namespace test::maybe {
-void should_be_empty() {
-  n::maybe<int> empty;
-  assert(!empty.has());
-}
-
-void should_be_valued() {
-  n::maybe<int> valued = 1;
-  assert(valued.has());
-  assert(valued.get() == 1);
-}
-
-void should_map_new_value() {
-  n::maybe<int> init = 2;
-  auto mapped = init.map([](const auto& i) { return i * 2; });
-  assert(mapped.has());
-  assert(mapped.get() == 4);
-}
-}  // namespace test::maybe
-
 namespace test::static_vector {
 void should_be_empty() {
   n::static_vector<int, 10> emptyv;
@@ -418,29 +398,35 @@ void should_not_overflow_on_push() {
 }
 }  // namespace test::ext_string
 
-namespace test::vector_view {
-void should_be_empty();
-void should_be_iterable();
-void should_have_a_size_of_5();
-}  // namespace test::vector_view
-
-namespace test::string_view {
-void should_be_empty();
-void should_be_iterable();
-void should_have_a_size_of_5();
-}  // namespace test::string_view
-
-// #include <n/format.hpp>
-#include <n/iofile.hpp>
 #include <n/tests.hpp>
 
+namespace test::maybe {
+void should_be_empty() {
+  n::maybe<int> empty;
+  N_TEST_ASSERT_FALSE(empty.has());
+}
+
+void should_be_valued() {
+  n::maybe<int> valued = 1;
+  N_TEST_ASSERT_TRUE(valued.has());
+  N_TEST_ASSERT_EQUALS(valued.get(), 1);
+}
+
+void should_map_new_value() {
+  n::maybe<int> init = 2;
+  auto mapped = init.map([](const auto& i) { return i * 2; });
+  N_TEST_ASSERT_TRUE(mapped.has());
+  N_TEST_ASSERT_EQUALS(mapped.get(), 4);
+}
+}  // namespace test::maybe
+
 int main() {
-  verbose = true;
-  BEGIN_TEST_SUITE(first_test_suite)
-  TEST(test add in c++)
-  ASSERT(1 + 1 == 2)
-  ASSERT(1 + 1 == 3)
-  END_TEST_SUITE
+
+  N_TEST_SUITE("suite de test pour la classe maybe<T>");
+  N_TEST_REGISTER(test::maybe::should_be_empty);
+  N_TEST_REGISTER(test::maybe::should_be_valued);
+  N_TEST_REGISTER(test::maybe::should_map_new_value);
+  N_TEST_RUN_SUITE;
 
   test::algo::should_find_an_item();
   test::algo::should_apply_function_foreach_item();
@@ -489,6 +475,5 @@ int main() {
   test::ext_string::should_have_three_items();
   test::ext_string::should_be_popable();
   test::ext_string::should_not_overflow_on_push();
-
-  printf("coucou\n");
+  
 }
