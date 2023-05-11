@@ -13,9 +13,13 @@ clean:
 	rm -rf building
 	rm -rf dist
 
-compile:
+building:
 	mkdir -p building
-	
+
+test-vector: src/tests-vector.cpp building
+	${CXX} -o  building/tests-vector.app src/tests-vector.cpp ${CXXFLAGS} ${CXXINCS}
+	./building/tests-vector.app	
+
 test: src/tests.cpp compile
 	${CXX} -o building/tests.app src/tests.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests.app
@@ -24,8 +28,5 @@ install:
 	mkdir -p dist
 	cp -rf src/n dist/
 	
-doc: 
-	doxygen
-
 clean-doc: 
 	rm -rf man

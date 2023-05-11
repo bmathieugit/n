@@ -217,19 +217,21 @@ class static_vector {
  public:
   constexpr void push(const T &t) {
     if (!full()) {
-      _data[_size++] = t;
+      _data[_size] = t;
+      ++_size;
     }
   }
 
   constexpr void push(T &&t) {
     if (!full()) {
-      _data[_size++] = transfer(t);
+      _data[_size] = transfer(t);
+      ++_size;
     }
   }
 
   constexpr maybe<T> pop() {
     if (_size != 0) {
-      return maybe<T>(transfer(_data[_size--]));
+      return maybe<T>(transfer(_data[--_size]));
     } else {
       return maybe<T>();
     }

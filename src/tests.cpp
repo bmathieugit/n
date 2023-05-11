@@ -427,53 +427,5 @@ int main() {
   N_TEST_REGISTER(test::maybe::should_be_valued);
   N_TEST_REGISTER(test::maybe::should_map_new_value);
   N_TEST_RUN_SUITE;
-
-  test::algo::should_find_an_item();
-  test::algo::should_apply_function_foreach_item();
-  test::maybe::should_be_empty();
-  test::maybe::should_be_valued();
-  test::maybe::should_map_new_value();
-
-  test::static_vector::should_be_empty();
-  test::static_vector::should_contain_one_item();
-  test::static_vector::should_contain_three_item();
-  test::static_vector::should_be_full();
-  test::static_vector::should_be_popable();
-  test::static_vector::should_be_iterable();
-  test::static_vector::should_be_reverse_iterable();
-
-  test::vector::should_be_empty();
-  test::vector::should_contain_one_item();
-  test::vector::should_contain_three_item();
-  test::vector::should_be_full();
-  test::vector::should_be_popable();
-  test::vector::should_be_iterable();
-  test::vector::should_be_reverse_iterable();
-
-  test::ext_vector::should_be_empty();
-  test::ext_vector::should_contain_one_item();
-  test::ext_vector::should_contain_three_item();
-  test::ext_vector::should_be_full();
-  test::ext_vector::should_be_popable();
-  test::ext_vector::should_be_iterable();
-  test::ext_vector::should_be_reverse_iterable();
-
-  test::static_string::should_be_empty();
-  test::static_string::should_be_full();
-  test::static_string::should_have_three_items();
-  test::static_string::should_be_popable();
-  test::static_string::should_not_overflow_on_push();
-
-  test::string::should_be_empty();
-  test::string::should_be_full();
-  test::string::should_have_three_items();
-  test::string::should_be_popable();
-  test::string::should_not_overflow_on_push();
-
-  test::ext_string::should_be_empty();
-  test::ext_string::should_be_full();
-  test::ext_string::should_have_three_items();
-  test::ext_string::should_be_popable();
-  test::ext_string::should_not_overflow_on_push();
-  
+ 
 }
