@@ -137,14 +137,24 @@ constexpr bool equals(I0 i0, I1 i1) {
 }
 
 /**
- * @brief
+ * @brief Checks if the sequence pointed by i1 starts with the sequence pointed
+ * by i0.
  *
- * @tparam I0
- * @tparam I1
- * @param i0
- * @param i1
+ * This function iterates through both sequences in parallel as long as the
+ * elements are equal and there are elements left in both sequences. If all
+ * elements in i1 have been traversed (which means all were equal to those in i0
+ * up to this point), then it can be concluded that the sequence pointed by i1
+ * indeed starts with the sequence pointed by i0.
  *
- * @return
+ * @tparam I0 Type of the first iterator. Must meet the requirements of
+ * InputIterator.
+ * @tparam I1 Type of the second iterator. Must meet the requirements of
+ * InputIterator.
+ * @param i0 An iterator to the beginning of the first sequence.
+ * @param i1 An iterator to the beginning of the second sequence.
+ * @return true If the sequence pointed by i1 starts with the sequence pointed
+ * by i0.
+ * @return false Otherwise.
  */
 template <iterator I0, iterator I1>
 constexpr bool starts_with(I0 i0, I1 i1) {
@@ -155,14 +165,20 @@ constexpr bool starts_with(I0 i0, I1 i1) {
 }
 
 /**
- * @brief
+ * @brief Counts the occurrences of a specific value in the sequence pointed to
+ * by the iterator i.
  *
- * @tparam I
- * @tparam T
- * @param i
- * @param t
+ * This function iterates through the sequence and compares each element with
+ * the provided value. If an element is equal to the provided value, the count
+ * is incremented. The final count is returned, representing the number of
+ * elements that are equal to the provided value.
  *
- * @return
+ * @tparam I Type of the iterator. Must meet the requirements of InputIterator.
+ * @tparam T Type of the value to be compared with each element in the sequence.
+ * @param i An iterator to the beginning of the sequence.
+ * @param t The value to be compared with each element in the sequence.
+ * @return size_t The number of elements in the sequence that are equal to the
+ * provided value.
  */
 template <iterator I, typename T>
 constexpr size_t count(I i, const T &t) {
@@ -176,14 +192,21 @@ constexpr size_t count(I i, const T &t) {
 }
 
 /**
- * @brief
+ * @brief Counts the elements in the sequence pointed to by iterator i that
+ * satisfy the predicate.
  *
- * @tparam I
- * @tparam P
- * @param i
- * @param pred
+ * This function iterates through the sequence and applies the predicate to each
+ * element. If the predicate returns true for an element, the count is
+ * incremented. The final count is returned, representing the number of elements
+ * for which the predicate returned true.
  *
- * @return
+ * @tparam I Type of the iterator. Must meet the requirements of InputIterator.
+ * @tparam P Type of the predicate function. The predicate function should take
+ * an element of the sequence as input and return a boolean value.
+ * @param i An iterator to the beginning of the sequence.
+ * @param pred A predicate function to be applied to each element.
+ * @return size_t The number of elements in the sequence for which the predicate
+ * returned true.
  */
 template <iterator I, typename P>
 constexpr size_t count(I i, P &&pred) {
@@ -197,14 +220,23 @@ constexpr size_t count(I i, P &&pred) {
 }
 
 /**
- * @brief
+ * @brief Checks if any of the elements in the sequence pointed to by iterator i
+ * satisfies the predicate.
  *
- * @tparam I
- * @tparam P
- * @param i
- * @param pred
+ * This function iterates through the sequence and applies the predicate to each
+ * element. If the predicate returns true for any element, the function will
+ * return true. If the predicate never returns true after going through all the
+ * elements, the function will return false.
  *
- * @return
+ * @tparam I Type of the iterator. Must meet the requirements of InputIterator.
+ * @tparam P Type of the predicate function. The predicate function should take
+ * an element of the sequence as input and return a boolean value.
+ * @param i An iterator to the beginning of the sequence.
+ * @param pred A predicate function to be applied to each element.
+ * @return true If the predicate function returns true for any element in the
+ * sequence.
+ * @return false If the predicate function never returns true or the sequence is
+ * empty.
  */
 template <iterator I, typename P>
 constexpr bool all_of(I i, P &&pred) {
@@ -221,14 +253,23 @@ constexpr bool all_of(I i, P &&pred) {
 }
 
 /**
- * @brief
+ * @brief Checks if any of the elements in the sequence pointed to by iterator i
+ * satisfies the predicate.
  *
- * @tparam I
- * @tparam P
- * @param i
- * @param pred
+ * This function iterates through the sequence and applies the predicate to each
+ * element. If the predicate returns true for any element, the function will
+ * return true. If the predicate never returns true after going through all the
+ * elements, the function will return false.
  *
- * @return
+ * @tparam I Type of the iterator. Must meet the requirements of InputIterator.
+ * @tparam P Type of the predicate function. The predicate function should take
+ * an element of the sequence as input and return a boolean value.
+ * @param i An iterator to the beginning of the sequence.
+ * @param pred A predicate function to be applied to each element.
+ * @return true If the predicate function returns true for any element in the
+ * sequence.
+ * @return false If the predicate function never returns true or the sequence is
+ * empty.
  */
 template <iterator I, typename P>
 constexpr bool any_of(I i, P &&pred) {
@@ -244,31 +285,25 @@ constexpr bool any_of(I i, P &&pred) {
   return res;
 }
 
-
-
-
-
-
-
-
-
-
-
-  /**
+/**
  * @brief Checks if none of the elements in the range satisfy the predicate.
- * 
- * The function template accepts a range defined by a pair of iterators and a unary predicate. 
- * It applies the predicate to each element in the range. If the predicate returns `true` for any 
- * element, the function returns `false`. If the predicate never returns `true`, the function returns `true`.
- * 
+ *
+ * The function template accepts a range defined by a pair of iterators and a
+ * unary predicate. It applies the predicate to each element in the range. If
+ * the predicate returns `true` for any element, the function returns `false`.
+ * If the predicate never returns `true`, the function returns `true`.
+ *
  * @tparam I Iterator type, which must satisfy the iterator concept.
- * @tparam P Predicate type, which should be invocable with the value type of the iterator.
- * 
+ * @tparam P Predicate type, which should be invocable with the value type of
+ * the iterator.
+ *
  * @param i An iterator to the beginning of the range to examine.
- * @param pred A unary predicate which returns a `bool` convertible value. 
- *             The signature of the predicate function should be logically equivalent to the following: `bool pred(const Type &a);`
- * 
- * @return `false` if the predicate `pred` returns `true` for any element in the range, `true` otherwise.
+ * @param pred A unary predicate which returns a `bool` convertible value.
+ *             The signature of the predicate function should be logically
+ * equivalent to the following: `bool pred(const Type &a);`
+ *
+ * @return `false` if the predicate `pred` returns `true` for any element in the
+ * range, `true` otherwise.
  */
 template <iterator I, typename P>
 constexpr bool none_of(I i, P &&pred) {
