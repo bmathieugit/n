@@ -16,6 +16,10 @@ clean:
 building:
 	mkdir -p building
 
+tests-variant: src/tests-variant.cpp building
+	${CXX} -o  building/tests-variant.app src/tests-variant.cpp ${CXXFLAGS} ${CXXINCS}
+	./building/tests-variant.app	
+
 tests-maybe: src/tests-maybe.cpp building
 	${CXX} -o  building/tests-maybe.app src/tests-maybe.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests-maybe.app	
@@ -33,7 +37,7 @@ tests-format: src/tests-format.cpp building
 	./building/tests-format.app	
 
 
-test: tests-vector tests-maybe tests-string tests-format
+test: tests-vector tests-maybe tests-string tests-format tests-variant
 
 install: 
 	mkdir -p dist
