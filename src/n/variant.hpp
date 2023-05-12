@@ -92,6 +92,7 @@ namespace n
       }
 
       new (_storage) rm_cvref<U>(u);
+      _index = indexof<rm_cvref<U>, T...>;
     }
 
     template <typename U0, typename... U>
@@ -107,6 +108,7 @@ namespace n
       if (i == indexof<U0, T...>)
       {
         new (_storage) U0(o.get<U0>());
+        _index = i;
       }
       else if constexpr (sizeof...(U) > 0)
       {
@@ -123,9 +125,9 @@ namespace n
       }
 
       new (_storage) rm_cvref<U>(transfer(u));
+      _index = indexof<rm_cvref<U>, T...>;
     }
 
-    template <typename... U>
     void move_o(variant &&o)
     {
       if (_index != size_t(-1))
@@ -133,7 +135,7 @@ namespace n
         destroy<T...>();
       }
 
-      auto i = o.index();
+      _index = o.index();
 
       for (int i = 0; i < largest<T...>; ++i)
       {
@@ -155,13 +157,11 @@ namespace n
     constexpr variant(const variant &o)
     {
       copy_o<T...>(o);
-      _index = o.index();
     }
 
     constexpr variant(variant &&o)
     {
-      move_o<T...>(transfer(o));
-      _index = o.index();
+      move_o(transfer(o));
     }
 
     constexpr variant &operator=(const variant &o)
@@ -169,7 +169,7 @@ namespace n
       if (this != &o)
       {
         copy_o<T...>(o);
-      } 
+      }
 
       return *this;
     }
@@ -178,7 +178,7 @@ namespace n
     {
       if (this != &o)
       {
-        move_o<T...>(transfer(o));
+        move_o(transfer(o));
       }
 
       return *this;
@@ -189,16 +189,16 @@ namespace n
     constexpr auto empty() const { return _index == size_t(-1); }
 
   public:
-    template<typename U>
-    constexpr void set(const U& u){
+    template <typename U>
+    constexpr void set(const U &u)
+    {
       copy(u);
-      _index = indexof<rm_cvref<U>, T...>;
     }
 
-    template<typename U>
-    constexpr void set(U&& u){
+    template <typename U>
+    constexpr void set(U &&u)
+    {
       move(transfer(u));
-      _index = indexof<rm_cvref<U>, T...>;
     }
     template <typename U>
     constexpr U &get()
