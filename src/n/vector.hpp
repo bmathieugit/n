@@ -246,23 +246,33 @@ class vector {
   T *_data = nullptr;
 
  public:
-  constexpr ~vector() = default;
+  constexpr ~vector() { delete[] transfer(_data); }
+
   constexpr vector() = default;
 
   constexpr explicit vector(size_t max)
-      : _size{0}, _max{max}, _data{new T[_max + 1]} {}
+      : _size{0}, _max{max}, _data{new T[_max]} {}
 
   // move
   constexpr vector(vector &&o) = default;
   constexpr vector &operator=(vector &&o) = default;
 
   // copy
-  constexpr vector(const vector &o) = default;
-  constexpr vector &operator=(const vector &) = default;
+  constexpr vector(const vector &o) : vector(o._max) {
+    auto io = o.iter();
 
-  // iterator
-  constexpr vector(iterator auto i) {
-    while (i.has_next() && !full()) push(i.next());
+    while (io.has_next()) {
+      push(io.next());
+    }
+  }
+
+  constexpr vector &operator=(const vector &o) {
+    if (this != &o) {
+      delete[] transfer(_data);
+      *this = transfer(vector(o));
+    }
+
+    return *this;
   }
 
  public:
@@ -337,11 +347,6 @@ class ext_vector {
   // copy
   constexpr ext_vector(const ext_vector &) = default;
   constexpr ext_vector &operator=(const ext_vector &) = default;
-
-  // iterator
-  constexpr ext_vector(iterator auto i) {
-    while (i.has_next() && !full()) push(i.next());
-  }
 
  public:
   constexpr auto iter() { return _data.iter(); }
