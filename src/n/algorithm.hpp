@@ -244,15 +244,31 @@ constexpr bool any_of(I i, P &&pred) {
   return res;
 }
 
-/**
- * @brief
- *
- * @tparam I
- * @tparam P
- * @param i
- * @param pred
- *
- * @return
+
+
+
+
+
+
+
+
+
+
+  /**
+ * @brief Checks if none of the elements in the range satisfy the predicate.
+ * 
+ * The function template accepts a range defined by a pair of iterators and a unary predicate. 
+ * It applies the predicate to each element in the range. If the predicate returns `true` for any 
+ * element, the function returns `false`. If the predicate never returns `true`, the function returns `true`.
+ * 
+ * @tparam I Iterator type, which must satisfy the iterator concept.
+ * @tparam P Predicate type, which should be invocable with the value type of the iterator.
+ * 
+ * @param i An iterator to the beginning of the range to examine.
+ * @param pred A unary predicate which returns a `bool` convertible value. 
+ *             The signature of the predicate function should be logically equivalent to the following: `bool pred(const Type &a);`
+ * 
+ * @return `false` if the predicate `pred` returns `true` for any element in the range, `true` otherwise.
  */
 template <iterator I, typename P>
 constexpr bool none_of(I i, P &&pred) {
