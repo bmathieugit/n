@@ -7,6 +7,7 @@
 #include <n/utils.hpp>
 
 namespace n {
+
 /**
  * @brief An iterator over a range of elements stored contiguously in memory.
  *
@@ -127,105 +128,8 @@ class reverse_vector_iterator {
 };
 
 /**
- * @brief A non-owning view into a sequence of elements.
- *
- * This class provides a lightweight, non-owning reference to a sequence of
- * elements. It is similar in concept to a non-owning pointer or a C++17
- * std::string_view. It does not own the elements it refers to, so it does not
- * manage their lifecycle. The referenced sequence must outlive this vector_view
- * object.
- *
- * @tparam T The type of elements the vector_view refers to.
- */
-template <typename T>
-class vector_view {
- private:
-  const T *_begin = nullptr;
-  const T *_end = nullptr;
-
- public:
-  /**
-   * @brief Default destructor.
-   */
-  constexpr ~vector_view() = default;
-
-  /**
-   * @brief Default constructor.
-   */
-  constexpr vector_view() = default;
-
-  /**
-   * @brief Construct a view given begin and end pointers.
-   *
-   * @param begin Pointer to the first element of the sequence.
-   * @param end Pointer to one past the last element of the sequence.
-   */
-  constexpr vector_view(const T *begin, const T *end)
-      : _begin(begin), _end(end) {}
-
-  /**
-   * @brief Construct a view given begin pointer and length.
-   *
-   * @param begin Pointer to the first element of the sequence.
-   * @param len The number of elements in the sequence.
-   */
-  constexpr vector_view(const T *begin, size_t len)
-      : _begin(begin), _end(begin + len) {}
-
-  /**
-   * @brief Default move constructor.
-   */
-  constexpr vector_view(vector_view &&) = default;
-
-  /**
-   * @brief Default move assignment operator.
-   */
-  constexpr vector_view &operator=(vector_view &&) = default;
-
-  /**
-   * @brief Default copy constructor.
-   */
-  constexpr vector_view(const vector_view &) = default;
-
-  /**
-   * @brief Default copy assignment operator.
-   */
-  constexpr vector_view &operator=(const vector_view &) = default;
-
- public:
-  /**
-   * @brief Get an iterator to the sequence.
-   *
-   * @return A forward iterator to the sequence.
-   */
-  constexpr auto iter() const { return vector_iterator<const T>(_begin, _end); }
-
-  /**
-   * @brief Get a reverse iterator to the sequence.
-   *
-   * @return A reverse iterator to the sequence.
-   */
-  constexpr auto riter() const {
-    return reverse_vector_iterator<const T>(_begin, _end);
-  }
-
- public:
-  /**
-   * @brief Get the size of the sequence.
-   *
-   * @return The number of elements in the sequence.
-   */
-  constexpr auto size() const { return _end - _begin; }
-
-  /**
-   * @brief Check if the sequence is empty.
-   *
-   * @return True if the sequence is empty, false otherwise.
-   */
-  constexpr auto empty() const { return size() == 0; }
-};
-/**
- * @brief A compile-time-fixed-size vector that stores its elements in static storage.
+ * @brief A compile-time-fixed-size vector that stores its elements in static
+ * storage.
  *
  * This class is a simple fixed-size array with a stack discipline. It maintains
  * an array of elements of type T in static storage, and provides methods to

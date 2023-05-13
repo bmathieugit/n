@@ -2,101 +2,61 @@
 #define __n_clon_hpp__
 
 #include <n/string.hpp>
+#include <n/utils.hpp>
+#include <n/variant.hpp>
 
-namespace n
-{
+namespace n {
 
-  enum class clon_node_type
-  {
-    node,
-    string,
-    number,
-    boolean,
-    unknown
-  };
+enum class clon_node_type : size_t {
+  object = 0,
+  string = 1,
+  number = 2,
+  boolean = 3,
+  unknown = 4
+};
 
-  class clon_node_empty
-  {
-  };
+struct clon_string {
+  ext_string<char> _data;
 
-  class clon_node
-  {
-  private:
-    string<char> _name;
-    clon_node_type _type = clon_node_type::unknown;
+  string_view<char> data() const { return string_view<char>(_data.iter()); }
+};
 
-    union
-    {
-      clon_node_empty _empty;
-      clon_node *_node;
-      string<char> _str;
-      double _num;
-      bool _bool;
-    };
+struct clon_number {
+  double _data;
+};
 
-  public:
-    constexpr ~clon_node()
-    {
-      if (_type == clon_node_type::string)
-      {
-        _str.~string<char>();
-      }
-    }
+struct clon_boolean {
+  bool _data;
+};
 
-    constexpr clon_node() : _name(), _type(clon_node_type::unknown), _empty() {}
-    constexpr clon_node(string_view<char> name, string_view<char> val)
-        : _name(name), _type(clon_node_type::string), _str(val) {}
-    constexpr clon_node(string_view<char> name, double val)
-        : _name(name), _type(clon_node_type::number), _num(val) {}
-    constexpr clon_node(string_view<char> name, bool val)
-        : _name(name), _type(clon_node_type::boolean), _bool(val) {}
+struct clon_object {
+  size_t _data;
+};
 
-    constexpr clon_node(const clon_node &o)
-    {
-      _name = o._name;
-      _type = o._type;
+struct clon_unknown {};
 
-      switch (o._type)
-      {
-      case clon_node_type::node:
-        _node = o._node;
-        break;
-      case clon_node_type::boolean:
-        _bool = o._bool;
-        break;
-      case clon_node_type::number:
-        _num = o._num;
-        break;
-      case clon_node_type::string:
-        _str = o._str;
-        break;
-      case clon_node_type::unknown:
-        break;
-      }
-    }
+class clon_node {
+  using num = clon_number;
+  using str = clon_string;
+  using boo = clon_boolean;
+  using obj = clon_object;
+  using unk = clon_unknown;
 
-    constexpr clon_node &operator=(const clon_node &o)
-    {
-      if (this != &o)
-      {
-        this->~clon_node();
-        *this = transfer(clon_node(o));
-      }
+ private:
+  variant<obj, str, num, boo, unk> _val;
 
-      return *this;
-    }
+ public:
+ public:
+  clon_node_type type() const {
+    return static_cast<clon_node_type>(_val.index());
+  }
 
-    constexpr clon_node(clon_node &&) = default;
-    constexpr clon_node &operator=(clon_node &&) = default;
+  const clon_number& number() const { return _val.get<clon_number>(); }
+  const clon_string& string() const { return _val.get<clon_string>(); }
+  const clon_boolean& boolean() const { return _val.get<clon_boolean>(); }
+  const clon_object& object() const { return _val.get<clon_object>(); }
+};
 
-  public:
-    constexpr auto type() const { return _type; }
-    constexpr const auto &name() const { return _name; }
-    constexpr const auto &str() const { return _str; }
-    constexpr const auto &node() const { return *_node; }
-    constexpr const auto &num() const { return _num; }
-    constexpr const auto &bool_() const { return _bool; }
-  };
-} // namespace n
+}  // namespace n
 
 #endif

@@ -104,12 +104,12 @@ constexpr void format_to_one_by_one(O &o, I &ifmt, const T &t) {
  * @tparam T The types of the objects to be formatted. Must satisfy the
  * formattable concept.
  * @param o The ostream to which the objects will be formatted.
- * @param fmt A string view containing the format string.
+ * @param fmt A string iterator containing the format string.
  * @param t The objects to be formatted.
  */
 template <character C, ostream O, formattable... T>
-constexpr void format_to(O &o, string_view<C> fmt, const T &...t) {
-  auto ifmt = fmt.iter();
+constexpr void format_to(O &o, string_iterator<C> fmt, const T &...t) {
+  auto ifmt = fmt;
 
   (format_to_one_by_one(o, ifmt, t), ...);
   format_one_to(o, ifmt);
@@ -130,7 +130,7 @@ constexpr void format_to(O &o, string_view<C> fmt, const T &...t) {
  * @param t The objects to be formatted.
  */
 template <ostream O, formattable... T>
-constexpr void format_to(O &o, string_view<char> fmt, const T &...t) {
+constexpr void format_to(O &o, string_iterator<char> fmt, const T &...t) {
   impl::format_to(o, fmt, t...);
 }
 
@@ -143,14 +143,47 @@ constexpr void format_to(O &o, string_view<char> fmt, const T &...t) {
  * @tparam T The types of the objects to be formatted. Must satisfy the
  * formattable concept.
  * @param o The ostream to which the objects will be formatted.
- * @param fmt A string view of type wchar_t containing the format string.
+ * @param fmt A string iterator of type wchar_t containing the format string.
  * @param t The objects to be formatted.
  */
 template <ostream O, formattable... T>
-constexpr void format_to(O &o, string_view<wchar_t> fmt, const T &...t) {
+constexpr void format_to(O &o, string_iterator<wchar_t> fmt, const T &...t) {
   impl::format_to(o, fmt, t...);
 }
 
+/**
+ * @brief Overload of format_to function for const char string iterator.
+ *
+ * This function calls the impl::format_to function with the given parameters.
+ *
+ * @tparam O The type of the ostream. Must satisfy the ostream concept.
+ * @tparam T The types of the objects to be formatted. Must satisfy the
+ * formattable concept.
+ * @param o The ostream to which the objects will be formatted.
+ * @param fmt A string view of type char containing the format string.
+ * @param t The objects to be formatted.
+ */
+template <ostream O, formattable... T>
+constexpr void format_to(O &o, string_iterator<const char> fmt, const T &...t) {
+  impl::format_to(o, fmt, t...);
+}
+
+/**
+ * @brief Overload of format_to function for const wchar_t string iterator.
+ *
+ * This function calls the impl::format_to function with the given parameters.
+ *
+ * @tparam O The type of the ostream. Must satisfy the ostream concept.
+ * @tparam T The types of the objects to be formatted. Must satisfy the
+ * formattable concept.
+ * @param o The ostream to which the objects will be formatted.
+ * @param fmt A string iterator of type wchar_t containing the format string.
+ * @param t The objects to be formatted.
+ */
+template <ostream O, formattable... T>
+constexpr void format_to(O &o, string_iterator<const wchar_t> fmt, const T &...t) {
+  impl::format_to(o, fmt, t...);
+}
 /**
  * @brief Overload of format_to function for wchar_t string views.
  *
@@ -308,8 +341,8 @@ class formatter<bool> {
    */
   template <ostream O>
   constexpr static void to(O &o, bool b) {
-    constexpr string_view<char> _true = "true";
-    constexpr string_view<char> _false = "false";
+    constexpr string_iterator<const char> _true = "true";
+    constexpr string_iterator<const char> _false = "false";
     format_one_to(o, b ? _true : _false);
   }
 };
@@ -342,29 +375,6 @@ class formatter<I> {
 };
 
 /**
- * @brief Formatter specialization for string_view types.
- *
- * This formatter specialization formats a string view to an ostream.
- *
- * @tparam C The character type of the string view.
- */
-template <character C>
-class formatter<string_view<C>> {
- public:
-  /**
-   * @brief Formats a string view to an ostream.
-   *
-   * @tparam O The type of the ostream. Must satisfy the ostream concept.
-   * @param o The ostream to which the string view will be formatted.
-   * @param s The string view to be formatted.
-   */
-  template <ostream O>
-  constexpr static void to(O &o, string_view<C> s) {
-    formatter<decltype(s.iter())>::to(o, s.iter());
-  }
-};
-
-/**
  * @brief Formatter specialization for character pointers.
  *
  * This formatter specialization formats a C-style string (null-terminated
@@ -384,7 +394,7 @@ class formatter<C *> {
    */
   template <ostream O>
   constexpr static void to(O &o, C *s) {
-    formatter<string_view<C>>::to(o, string_view<C>(s));
+    format_one_to(o, string_iterator<C>(s));
   }
 };
 
@@ -408,7 +418,7 @@ class formatter<C[N]> {
    */
   template <ostream O>
   constexpr static void to(O &o, const C (&s)[N]) {
-    formatter<string_view<C>>::to(o, s);
+    format_one_to(o, string_iterator<const C>(s));
   }
 };
 
@@ -432,7 +442,7 @@ class formatter<const C *> {
    */
   template <ostream O>
   constexpr static void to(O &o, const C *s) {
-    formatter<string_view<C>>::to(o, string_view<C>(s));
+    format_one_to(o, string_iterator<const C>(s));
   }
 };
 
@@ -456,7 +466,7 @@ class formatter<const C[N]> {
    */
   template <ostream O>
   constexpr static void to(O &o, const C (&s)[N]) {
-    formatter<string_view<C>>::to(o, s);
+    format_one_to(o, string_iterator<const C>(s));
   }
 };
 
