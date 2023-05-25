@@ -2,6 +2,8 @@
 #include <n/format.hpp>
 #include <n/tests.hpp>
 
+
+
 void test_char_formatter() {
   n::static_string<char, 10> ss;
   n::format_to(ss, "abc $", 'x');
