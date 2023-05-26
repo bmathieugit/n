@@ -93,6 +93,79 @@ using string = vector<C>;
 template <character C>
 using ext_string = ext_vector<C>;
 
+namespace str {
+
+/**
+ * @brief Compute the length of a static_string
+ *
+ * This function returns the size of a static_string.
+ *
+ * @tparam C The character type of the string.
+ * @tparam N The size of the string.
+ * @param s The static_string whose size is to be returned.
+ * @return The size of the static_string.
+ */
+template <character C, size_t N>
+constexpr size_t len(const static_string<C, N>& s) {
+  return s.size();
+}
+
+/**
+ * @brief Compute the length of a string
+ *
+ * This function returns the size of a string.
+ *
+ * @tparam C The character type of the string.
+ * @param s The string whose size is to be returned.
+ * @return The size of the string.
+ */
+template <character C>
+constexpr size_t len(const string<C>& s) {
+  return s.size();
+}
+
+/**
+ * @brief Compute the length of an ext_string
+ *
+ * This function returns the size of an ext_string.
+ *
+ * @tparam C The character type of the string.
+ * @param s The ext_string whose size is to be returned.
+ * @return The size of the ext_string.
+ */
+template <character C>
+constexpr size_t len(const ext_string<C>& s) {
+  return s.size();
+}
+
+/**
+ * @brief Compute the length of a C-style string
+ *
+ * This function returns the size of a C-style string, defined as a pointer to
+ * characters. The string must be null-terminated.
+ *
+ * @tparam C The character type of the string.
+ * @param s The C-style string whose size is to be returned.
+ * @return The size of the C-style string.
+ */
+template <character C>
+constexpr size_t len(const C* s) {
+  auto c = s;
+
+  if (c != nullptr)
+    while (*c != '\0') ++c;
+
+  return c - s;
+}
+
+constexpr void copy(const auto & src, auto& dest) {
+  iterator auto i = src.iter();
+  while (i.has_next()) {
+    dest.push(i.next());
+  }
+}
+}  // namespace str
+
 }  // namespace n
 
 #endif
