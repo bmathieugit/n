@@ -162,7 +162,7 @@ void test_empty() {
 }
 
 void test_push_and_size() {
- n::ext_string<char> v(5);
+  n::ext_string<char> v(5);
   v.push(1);
   N_TEST_ASSERT_FALSE(v.empty());
   N_TEST_ASSERT_EQUALS(v.size(), 1);
@@ -236,6 +236,64 @@ void test_push_when_full() {
 }
 
 }  // namespace ext
+
+void limited_string_iterator_test() {
+  // Création d'un itérateur sur une chaîne de caractères limitée
+  n::string_iterator<const char> str = "Hello, World!";
+  n::str::limited_string_iterator<const char> lit(str, 6);
+
+  // Test de la méthode has_next()
+  N_TEST_ASSERT_TRUE(lit.has_next());
+
+  // Test de la méthode next()
+  N_TEST_ASSERT_EQUALS(lit.next(), 'H');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'e');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'l');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'l');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'o');
+  N_TEST_ASSERT_EQUALS(lit.next(), ',');
+
+  // Le caractère ' ' est atteint, l'itération s'arrête
+  N_TEST_ASSERT_FALSE(lit.has_next());
+}
+
+void string_splitter_test() {
+  // Création d'un objet string_splitter
+  n::string_iterator<const char> str = "Hello, World! h";
+  n::str::string_splitter<const char> splitter(str, ' ');
+
+  // Test de la méthode has_next()
+  N_TEST_ASSERT_TRUE(splitter.has_next());
+
+  // Test de la méthode next()
+  auto lit = splitter.next();
+  N_TEST_ASSERT_TRUE(lit.has_next());
+  N_TEST_ASSERT_EQUALS(lit.next(), 'H');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'e');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'l');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'l');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'o');
+  N_TEST_ASSERT_EQUALS(lit.next(), ',');
+  N_TEST_ASSERT_FALSE(lit.has_next());
+
+  lit = splitter.next();
+  N_TEST_ASSERT_TRUE(lit.has_next());
+  N_TEST_ASSERT_EQUALS(lit.next(), 'W');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'o');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'r');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'l');
+  N_TEST_ASSERT_EQUALS(lit.next(), 'd');
+  N_TEST_ASSERT_EQUALS(lit.next(), '!')
+  N_TEST_ASSERT_FALSE(lit.has_next());
+
+  lit = splitter.next();
+  N_TEST_ASSERT_EQUALS(lit.next(), 'h');
+  N_TEST_ASSERT_FALSE(lit.has_next());
+
+  // Il n'y a plus de parties de la chaîne à splitter
+  N_TEST_ASSERT_FALSE(splitter.has_next());
+}
+
 int main() {
   N_TEST_SUITE("StaticString Tests")
   N_TEST_REGISTER(test_empty);
@@ -269,5 +327,10 @@ int main() {
   N_TEST_REGISTER(ext::test_iterator);
   N_TEST_REGISTER(ext::test_reverse_iterator);
   N_TEST_REGISTER(ext::test_push_when_full);
+  N_TEST_RUN_SUITE
+
+  N_TEST_SUITE("String Splitter Tests")
+  N_TEST_REGISTER(limited_string_iterator_test)
+  N_TEST_REGISTER(string_splitter_test)
   N_TEST_RUN_SUITE
 }

@@ -1,11 +1,11 @@
 #ifndef __n_string_hpp__
 #define __n_string_hpp__
 
+#include <stdio.h>
 #include <string.h>
 
 #include <n/utils.hpp>
 #include <n/vector.hpp>
-
 namespace n {
 
 /**
@@ -158,12 +158,121 @@ constexpr size_t len(const C* s) {
   return c - s;
 }
 
-constexpr void copy(const auto & src, auto& dest) {
+/**
+ * @brief Copy elements from the source to the destination container.
+ *
+ * This function iterates over the elements of the source container and copies
+ * each element to the destination container.
+ *
+ * @param src The source container providing the elements.
+ * @param dest The destination container to store the copied elements.
+ */
+constexpr void copy(const auto& src, auto& dest) {
   iterator auto i = src.iter();
   while (i.has_next()) {
     dest.push(i.next());
   }
 }
+
+/**
+ * @class limited_string_iterator
+ * @brief Iterator for iterating over a limited number of characters in a
+ * string.
+ *
+ * This class provides an iterator that can iterate over a limited number of
+ * characters in a string.
+ *
+ * @tparam C The character type.
+ */
+template <character C>
+class limited_string_iterator {
+ private:
+  string_iterator<C> _its; /**< The underlying string iterator. */
+  size_t _limit; /**< The limit on the number of characters to iterate. */
+
+ public:
+  /**
+   * @brief Constructs a limited_string_iterator object.
+   *
+   * @param its The string iterator to use.
+   * @param limit The limit on the number of characters to iterate.
+   */
+  limited_string_iterator(string_iterator<C> its, size_t limit)
+      : _its(its), _limit(limit) {}
+
+ public:
+  /**
+   * @brief Checks if there are more characters to iterate.
+   *
+   * @return `true` if there are more characters to iterate, `false` otherwise.
+   */
+  constexpr bool has_next() const { return _its.has_next() && _limit != 0; }
+
+  /**
+   * @brief Gets the next character and moves the iterator forward.
+   *
+   * @return The next character in the iteration.
+   */
+  constexpr C next() {
+    _limit--;
+    return _its.next();
+  }
+};
+
+/**
+ * @class string_splitter
+ * @brief Splitter for splitting a string into limited sub-strings.
+ *
+ * This class provides a splitter that can split a string into limited
+ * sub-strings based on a delimiter character.
+ *
+ * @tparam C The character type.
+ */
+template <character C>
+class string_splitter {
+ private:
+  string_iterator<C> _its; /**< The underlying string iterator. */
+  C _limit;                /**< The delimiter character to split the string. */
+
+ public:
+  /**
+   * @brief Constructs a string_splitter object.
+   *
+   * @param its The string iterator to use.
+   * @param limit The delimiter character to split the string.
+   */
+  constexpr string_splitter(string_iterator<C> its, C limit)
+      : _its(its), _limit(limit) {}
+
+ public:
+  /**
+   * @brief Checks if there are more sub-strings to split.
+   *
+   * @return `true` if there are more sub-strings to split, `false` otherwise.
+   */
+  constexpr bool has_next() const { return _its.has_next(); }
+
+  /**
+   * @brief Gets the next limited sub-string and moves the iterator forward.
+   *
+   * @return The next limited sub-string.
+   */
+  constexpr limited_string_iterator<C> next() {
+    auto istart = _its;
+    size_t i = 0;
+
+    while (_its.has_next()) {
+      if (_its.next() == _limit) {
+        break;
+      } else {
+        ++i;
+      }
+    }
+
+    return limited_string_iterator<C>(istart, i);
+  }
+};
+
 }  // namespace str
 
 }  // namespace n
