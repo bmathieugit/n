@@ -343,7 +343,7 @@ class vector {
    *
    * Cleans up the dynamically allocated memory.
    */
-  constexpr ~vector() { delete[] transfer(_data); }
+  constexpr ~vector() { delete[] _data; }
 
   /**
    * @brief Default constructor.
@@ -369,7 +369,10 @@ class vector {
    *
    * @param o The vector to be moved.
    */
-  constexpr vector(vector &&o) = default;
+  constexpr vector(vector &&o)
+      : _size(transfer(o._size)),
+        _max(transfer(o._max)),
+        _data(transfer(o._data)) {}
 
   /**
    * @brief Move assignment operator.
@@ -379,7 +382,15 @@ class vector {
    * @param o The vector to be moved.
    * @return A reference to the current vector.
    */
-  constexpr vector &operator=(vector &&o) = default;
+  constexpr vector &operator=(vector &&o) {
+    if (this != &o) {
+      _size = transfer(o._size);
+      _max = transfer(o._max);
+      _data = transfer(o._data);
+    }
+
+    return *this;
+  };
 
   /**
    * @brief Copy constructor.
