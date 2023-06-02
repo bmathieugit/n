@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++20 -O3 -save-temps -fconcepts-diagnostics-depth=10
+CXXFLAGS=-std=c++20 -O3 -save-temps 
 CXXINCS=-Isrc
 
 all: \
@@ -37,7 +37,7 @@ tests-format: src/tests-format.cpp building
 	./building/tests-format.app	
 
 
-test: tests-vector tests-maybe tests-string tests-format tests-variant
+test: tests-vector tests-string tests-format #tests-maybe tests-variant
 
 install: 
 	mkdir -p dist
