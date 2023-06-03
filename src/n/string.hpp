@@ -1,12 +1,10 @@
 #ifndef __n_string_hpp__
 #define __n_string_hpp__
 
+#include <n/utils.hpp>
 #include <n/vector.hpp>
 
 namespace n {
-
-template <typename T>
-concept character = same_as<T, char> or same_as<T, wchar_t>;
 
 template <character C>
 class string {
@@ -19,7 +17,7 @@ class string {
   
   constexpr string(const C* str) {
     while (*str != '\0') {
-      _data.push(*str++);
+      _data.push(*(str++));
     }
   }
 
@@ -58,7 +56,7 @@ class string {
     _data.push(c);
   }
 
-  constexpr C pop() {
+  constexpr maybe<C> pop() {
     return _data.pop();
   }
 

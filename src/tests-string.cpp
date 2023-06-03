@@ -56,7 +56,7 @@ void test_string_push() {
 
 void test_string_pop() {
   n::string<char> s("Hi");
-  char last_char = s.pop();
+  char last_char = s.pop().get();
   N_TEST_ASSERT_EQUALS(last_char, 'i');
   N_TEST_ASSERT_EQUALS(s.len(), 1);
 }

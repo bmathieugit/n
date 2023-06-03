@@ -12,7 +12,7 @@ void test_vector_push_pop() {
   v.push(5);
   N_TEST_ASSERT_FALSE(v.empty());
   N_TEST_ASSERT_EQUALS(v.len(), 1);
-  N_TEST_ASSERT_EQUALS(v.pop(), 5);
+  N_TEST_ASSERT_EQUALS(v.pop().get(), 5);
   N_TEST_ASSERT_TRUE(v.empty());
 }
 
@@ -22,7 +22,7 @@ void test_vector_copy() {
   n::vector<int> v_copy = v;
   N_TEST_ASSERT_FALSE(v_copy.empty());
   N_TEST_ASSERT_EQUALS(v_copy.len(), 1);
-  N_TEST_ASSERT_EQUALS(v_copy.pop(), 5);
+  N_TEST_ASSERT_EQUALS(v_copy.pop().get(), 5);
 }
 
 void test_vector_move() {
@@ -32,7 +32,18 @@ void test_vector_move() {
   N_TEST_ASSERT_TRUE(v.empty());
   N_TEST_ASSERT_FALSE(v_moved.empty());
   N_TEST_ASSERT_EQUALS(v_moved.len(), 1);
-  N_TEST_ASSERT_EQUALS(v_moved.pop(), 5);
+  N_TEST_ASSERT_EQUALS(v_moved.pop().get(), 5);
+}
+
+void test_vector_move_eq() {
+  n::vector<int> v;
+  v.push(5);
+  n::vector<int> v_moved;
+  v = n::move(v_moved);
+  N_TEST_ASSERT_TRUE(v.empty());
+  N_TEST_ASSERT_FALSE(v_moved.empty());
+  N_TEST_ASSERT_EQUALS(v_moved.len(), 1);
+  N_TEST_ASSERT_EQUALS(v_moved.pop().get(), 5);
 }
 
 void test_vector_resize() {
@@ -96,6 +107,7 @@ int main() {
   N_TEST_REGISTER(test_vector_push_pop);
   N_TEST_REGISTER(test_vector_copy);
   N_TEST_REGISTER(test_vector_move);
+  N_TEST_REGISTER(test_vector_move_eq);
   N_TEST_REGISTER(test_vector_resize);
   N_TEST_REGISTER(test_vector_clear);
   N_TEST_REGISTER(test_vector_iterator);

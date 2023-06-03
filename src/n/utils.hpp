@@ -5,116 +5,36 @@ namespace n {
 
 using size_t = unsigned long long;
 
-namespace impl {
+template <typename T, typename U>
+constexpr bool __same_as = false;
+
+template <typename T>
+constexpr bool __same_as<T, T> = true;
 
 template <typename T, typename U>
-constexpr bool same_as = false;
+concept same_as = __same_as<T, U>;
 
 template <typename T>
-constexpr bool same_as<T, T> = true;
-
-template <typename T>
-struct rm_ref {
+struct __rm_ref {
   using type = T;
 };
 
 template <typename T>
-struct rm_ref<T&> {
+struct __rm_ref<T&> {
   using type = T;
 };
 
 template <typename T>
-struct rm_ref<T&&> {
+struct __rm_ref<T&&> {
   using type = T;
 };
 
 template <typename T>
-struct rm_const {
-  using type = T;
-};
+using rm_ref = typename __rm_ref<T>::type;
 
 template <typename T>
-struct rm_const<const T> {
-  using type = T;
-};
-
-template <typename T>
-struct rm_volatile {
-  using type = T;
-};
-
-template <typename T>
-struct rm_volatile<volatile T> {
-  using type = T;
-};
-
-}  // namespace impl
-
-template <typename T, typename U>
-concept same_as = impl::same_as<T, U>;
-
-template <typename T>
-using rm_ref = typename impl::rm_ref<T>::type;
-
-template <typename T>
-using rm_const = typename impl::rm_const<T>::type;
-
-template <typename T>
-using rm_volatile = typename impl::rm_volatile<T>::type;
-
-template <typename T>
-using rm_cvref = rm_ref<rm_const<rm_volatile<T>>>;
-
-template <typename T>
-using add_const = const T;
-
-template <typename T>
-using add_ref = T&;
-
-template <typename T>
-using add_cref = add_const<add_ref<T>>;
-
-template <typename T>
-using add_rref = T&&;
-
-}  // namespace n
-
-namespace n {
-
-template <typename T>
-constexpr rm_ref<T>&& transfer(T&& t) {
+constexpr rm_ref<T>&& move(T&& t) {
   return static_cast<rm_ref<T>&&>(t);
-}
-
-namespace impl {
-
-template <typename T>
-constexpr bool pointer_eq = false;
-
-template <typename T>
-constexpr bool pointer_eq<T*> = true;
-}  // namespace impl
-
-template <typename T>
-concept pointer_eq = impl::pointer_eq<rm_ref<T>>;
-
-template <pointer_eq T>
-constexpr auto transfer(T&& t) {
-  rm_cvref<T> copy = t;
-  t = nullptr;
-  return copy;
-}
-
-template <typename T>
-concept number_eq = same_as<rm_ref<T>, char> || same_as<rm_ref<T>, short> ||
-                    same_as<rm_ref<T>, int> || same_as<rm_ref<T>, long> ||
-                    same_as<rm_ref<T>, long long> || same_as<rm_ref<T>, bool>;
-
-template <number_eq T>
-constexpr auto transfer(T&& t) {
-  rm_cvref<T> copy = t;
-  t = 0;
-  return copy;
 }
 
 template <typename T>
@@ -127,32 +47,16 @@ constexpr T&& relay(rm_ref<T>&& t) noexcept {
   return static_cast<T&&>(t);
 }
 
-template <typename U, typename T>
-constexpr U cast(T&& t) noexcept {
-  return static_cast<U>(t);
-}
-
 template <typename T>
-constexpr T fakeval() noexcept;
+concept character = same_as<T, char> or same_as<T, wchar_t>;
 
-template <typename I>
-concept signed_integral = same_as<I, short> || same_as<I, int> ||
-                          same_as<I, long> || same_as<I, long long>;
-
-template <typename I>
-concept unsigned_integral =
-    same_as<I, unsigned short> || same_as<I, unsigned int> ||
-    same_as<I, unsigned long> || same_as<I, unsigned long long>;
-
-template <typename F>
-concept floating_point = same_as<F, float> || same_as<F, double>;
-
-template <typename I>
-concept iterator = requires(I i) {
-                     i.has_next();
-                     i.next();
-                   };
-
+template <character C>
+constexpr size_t strlen(const C* s) {
+  size_t i = 0;
+  if (s != nullptr)
+    while (s[i] != '\0') ++i;
+  return i;
+}
 }  // namespace n
 
 #endif
