@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++20 -O3 -save-temps 
+CXXFLAGS=-std=c++20 -O3 -save-temps
 CXXINCS=-Isrc
 
 all: \

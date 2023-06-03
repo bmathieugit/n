@@ -2,38 +2,38 @@
 #include <n/tests.hpp>
 
 void test_string_create() {
-  n::string<char> s("Hello");
+  auto s = n::str("Hello");
   N_TEST_ASSERT_EQUALS(s.len(), 5);
 }
 
 void test_string_copy_constructor() {
-  n::string<char> s("Hello");
+  auto s = n::str("Hello");
   n::string<char> s2 = s;
   N_TEST_ASSERT_EQUALS(s2.len(), 5);
 }
 
 void test_string_move_constructor() {
-  n::string<char> s("Hello");
+  auto  s = n::str("Hello");
   n::string<char> s3 = n::move(s);
   N_TEST_ASSERT_EQUALS(s3.len(), 5);
 }
 
 void test_string_copy_assignment() {
-  n::string<char> s("Hello");
+  auto s = n::str("Hello");
   n::string<char> s2;
   s2 = s;
   N_TEST_ASSERT_EQUALS(s2.len(), 5);
 }
 
 void test_string_move_assignment() {
-  n::string<char> s("Hello");
+  auto  s = n::str("Hello");
   n::string<char> s3;
   s3 = n::move(s);
   N_TEST_ASSERT_EQUALS(s3.len(), 5);
 }
 
 void test_string_len() {
-  n::string<char> s("Hello");
+  auto s = n::str("Hello");
   N_TEST_ASSERT_EQUALS(s.len(), 5);
 }
 
@@ -43,7 +43,7 @@ void test_string_empty() {
 }
 
 void test_string_full() {
-  n::string<char> s("Hello");
+  auto s=n::str("Hello");
   N_TEST_ASSERT_FALSE(s.full());
 }
 
@@ -55,14 +55,14 @@ void test_string_push() {
 }
 
 void test_string_pop() {
-  n::string<char> s("Hi");
+  auto s = n::str("Hi");
   char last_char = s.pop().get();
   N_TEST_ASSERT_EQUALS(last_char, 'i');
   N_TEST_ASSERT_EQUALS(s.len(), 1);
 }
 
 void test_string_clear() {
-  n::string<char> s("Clear me");
+  auto s=n::str("Clear me");
   s.clear();
   N_TEST_ASSERT_TRUE(s.empty());
 }
