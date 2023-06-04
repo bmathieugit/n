@@ -4,6 +4,7 @@
 #include <n/utils.hpp>
 
 namespace n {
+
 template <typename E>
 class result_error {
  private:
@@ -41,6 +42,7 @@ class result {
 
   constexpr result(const E& e) : _has(false), _e(result_error<E>(e)) {}
   constexpr result(const T& t) : _has(true), _t(t) {}
+
   constexpr result(const result& r) : _has(r._has) {
     if (_has) {
       _t = r._t;
@@ -91,9 +93,9 @@ class result {
   constexpr const E& error() const { return _e.error(); }
 
   constexpr T& get() & { return _t; }
-  constexpr T&& get() && { return _t; }
+  constexpr T&& get() && { return move(_t); }
   constexpr const T& get() const& { return _t; }
-  constexpr const T&& get() const&& { return _t; };
+  constexpr const T&& get() const&& { return move(_t); };
 };
 
 class maybe_empty {};
@@ -107,13 +109,13 @@ class maybe {
     maybe_empty _e;
   };
 
-
  public:
   constexpr ~maybe() {
     if (_has) {
       _t.~T();
     }
   }
+
   constexpr maybe() : _has(false), _e() {}
 
   constexpr maybe(const T& t) : _has(true), _t(t) {}
@@ -158,7 +160,6 @@ class maybe {
 
   constexpr T& get() & { return _t; }
   constexpr T&& get() && { return move(_t); }
-
   constexpr const T& get() const& { return _t; }
   constexpr const T&& get() const&& { return move(_t); }
 };

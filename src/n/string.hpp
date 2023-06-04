@@ -12,8 +12,10 @@ using string = vector<C>;
 template <character C>
 string<C> str(const C* s) {
   string<C> str;
+  
   if (s != nullptr)
     while (*s != '\0') str.push(*(s++));
+  
   return str;
 }
 

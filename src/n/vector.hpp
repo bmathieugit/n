@@ -8,6 +8,8 @@
 
 namespace n {
 
+enum class vector_error : char { index_overflow };
+
 template <typename T>
 class vector;
 
@@ -125,8 +127,9 @@ class vector {
     _len += 1;
   }
 
-  constexpr maybe<T> pop() {
-    return not empty() ? maybe<T>(move(_data[--_len])) : maybe<T>();
+  constexpr result<T, vector_error> pop() {
+    return not empty() ? result<T, vector_error>(move(_data[--_len]))
+                       : result<T, vector_error>(vector_error::index_overflow);
   }
 
   constexpr void clear() { _len = 0; }
