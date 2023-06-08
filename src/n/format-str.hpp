@@ -1,4 +1,5 @@
-
+#ifndef __n_format_str_hpp__
+#define __n_format_str_hpp__
 
 #include <n/format-core.hpp
 
@@ -26,3 +27,4 @@ constexpr void format_to(O& dest, const char* fmt, const T&... t) {
 }
 
 } 
+#endif 
