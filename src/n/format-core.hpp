@@ -3,8 +3,8 @@
 
 #include <n/utils.hpp>
 #include <n/iterator.hpp>
-//#include <n/vector.hpp>
-#include <n/string.hpp>
+
+
 
 namespace n {
 
@@ -13,11 +13,10 @@ namespace n {
 template <typename T>
 constexpr T format_joker;
 
-template <>
-constexpr char format_joker<char> = '$';
 
-template <>
-constexpr wchar_t format_joker<wchar_t> = L'$';
+
+
+
 
 // FORMATTER
 
