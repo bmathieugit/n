@@ -3,7 +3,7 @@
 
 namespace n {
 
-using size_t = unsigned long long;
+using size_t = unsigned long;
 
 template <typename T, typename U>
 constexpr bool __same_as = false;
@@ -57,6 +57,13 @@ constexpr size_t strlen(const C* s) {
     while (s[i] != '\0') ++i;
   return i;
 }
+
 }  // namespace n
+
+template<typename T>
+void* operator new (n::size_t, T* ptr) {
+  return ptr;
+}
+
 
 #endif

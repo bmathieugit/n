@@ -1,8 +1,11 @@
+#include "n/string.hpp"
 #include <stdio.h>
 
 #include <n/format.hpp>
 #include <n/iterator.hpp>
 #include <n/tests.hpp>
+
+#include <n/extract.hpp>
 
 bool operator==(const n::string<char>& s, const char* s1) {
   return n::equal(s.iter(), n::pointer_iterator(s1, strlen(s1)));
@@ -71,4 +74,23 @@ int main() {
   N_TEST_REGISTER(test_format_unsigned_integral)
   N_TEST_REGISTER(test_format_bool)
   N_TEST_RUN_SUITE
+  
+  auto input = n::str("Je suis bob!");
+  auto pattern = n::str("Je suis $!");
+  auto name = n::maybe<n::string<char>>();
+ 
+  extract(input, pattern, name);
+  
+  if (name.has()) {
+    auto iname = name.get().iter();
+    
+    while (iname.has_next()) {
+      printf("%c", iname.next());
+    }
+  }
+
+  char test [sizeof(int)];
+
+  *reinterpret_cast<int*>(test) = 12;
+  printf("test : %d", *reinterpret_cast<int*>(test));
 }
