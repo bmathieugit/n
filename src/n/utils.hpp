@@ -5,6 +5,19 @@ namespace n {
 
 using size_t = unsigned long;
 
+template <bool test, typename T, typename U>
+struct __if_ {
+  using type = U;
+};
+
+template <typename T, typename U>
+struct __if_<true, T, U> {
+  using type = T;
+};
+
+template <bool test, typename T, typename U>
+using if_ = typename __if_<test, T, U>::type;
+
 template <typename T, typename U>
 constexpr bool __same_as = false;
 
@@ -13,6 +26,9 @@ constexpr bool __same_as<T, T> = true;
 
 template <typename T, typename U>
 concept same_as = __same_as<T, U>;
+
+template <typename U, typename T0, typename... T>
+concept contains = (same_as<U, T> or ...) or same_as<U, T0>;
 
 template <typename T>
 struct __rm_ref {
@@ -60,10 +76,9 @@ constexpr size_t strlen(const C* s) {
 
 }  // namespace n
 
-template<typename T>
-void* operator new (n::size_t, T* ptr) {
+template <typename T>
+void* operator new(n::size_t, T* ptr) {
   return ptr;
 }
-
 
 #endif

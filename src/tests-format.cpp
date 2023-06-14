@@ -1,3 +1,4 @@
+#include "n/result.hpp"
 #include "n/string.hpp"
 #include <stdio.h>
 
@@ -75,22 +76,5 @@ int main() {
   N_TEST_REGISTER(test_format_bool)
   N_TEST_RUN_SUITE
   
-  auto input = n::str("Je suis bob!");
-  auto pattern = n::str("Je suis $!");
-  auto name = n::maybe<n::string<char>>();
- 
-  extract(input, pattern, name);
-  
-  if (name.has()) {
-    auto iname = name.get().iter();
-    
-    while (iname.has_next()) {
-      printf("%c", iname.next());
-    }
-  }
 
-  char test [sizeof(int)];
-
-  *reinterpret_cast<int*>(test) = 12;
-  printf("test : %d", *reinterpret_cast<int*>(test));
 }
