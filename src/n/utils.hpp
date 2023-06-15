@@ -66,6 +66,9 @@ constexpr T&& relay(rm_ref<T>&& t) noexcept {
 template <typename T>
 concept character = same_as<T, char> or same_as<T, wchar_t>;
 
+template <typename T>
+concept default_constructible = requires { T(); };
+
 template <character C>
 constexpr size_t strlen(const C* s) {
   size_t i = 0;

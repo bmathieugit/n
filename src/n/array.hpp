@@ -6,7 +6,7 @@
 #include <n/utils.hpp>
 
 namespace n {
-template <typename T, size_t N>
+template <default_constructible T, size_t N>
 class array {
  private:
   T _data[N];

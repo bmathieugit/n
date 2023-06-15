@@ -28,6 +28,7 @@ class pointer_iterator {
   T* _end;
 
  public:
+  constexpr pointer_iterator() : _begin(nullptr), _end(nullptr) {}
   constexpr pointer_iterator(T* begin, T* end) : _begin(begin), _end(end) {}
   constexpr pointer_iterator(T* begin, size_t end)
       : _begin(begin), _end(begin + end) {}
@@ -44,6 +45,7 @@ class pointer_oterator {
   T* _end;
 
  public:
+  constexpr pointer_oterator() : _begin(nullptr), _end(nullptr) {}
   constexpr pointer_oterator(T* begin, T* end) : _begin(begin), _end(end) {}
   constexpr pointer_oterator(T* begin, size_t end)
       : _begin(begin), _end(begin + end) {}
@@ -58,17 +60,37 @@ class pointer_oterator {
   }
 };
 
-template<character C>
-class cstring_iterator{
-  private:
-    const C* _begin;
-  public:
-    constexpr cstring_iterator(const C* begin): _begin(begin) {
-    }
+template <typename T>
+class pointer_limit_iterator {
+ private:
+  pointer_iterator<T> _it;
+  size_t _limit;
 
-  public:
-    constexpr bool has_next() const {return *_begin != '\0';}
-    constexpr C next() {return *(_begin++);}
+ public:
+  constexpr pointer_limit_iterator() : _it(), _limit(0) {}
+  constexpr pointer_limit_iterator(pointer_iterator<T> it, size_t limit)
+      : _it(it), _limit(limit) {}
+
+ public:
+  constexpr bool has_next() const { return _limit != 0 and _it.has_next(); }
+
+  constexpr auto next() -> decltype(auto) {
+    _limit -= 1;
+    return _it.next();
+  }
+};
+
+template <character C>
+class cstring_iterator {
+ private:
+  const C* _begin;
+
+ public:
+  constexpr cstring_iterator(const C* begin) : _begin(begin) {}
+
+ public:
+  constexpr bool has_next() const { return *_begin != '\0'; }
+  constexpr C next() { return *(_begin++); }
 };
 
 }  // namespace n

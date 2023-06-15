@@ -76,5 +76,36 @@ int main() {
   N_TEST_REGISTER(test_format_bool)
   N_TEST_RUN_SUITE
   
+  auto input = n::str("Hello Bob et John !!Bye");
+  auto pattern = n::str("Hello $ et $ !!$");
+  
+  n::maybe<n::string<char>> ms;
+  n::maybe<n::string<char>> ms2;
+  n::maybe<n::string<char>> ms3;
 
+  n::extract(input, pattern, ms, ms2, ms3);
+  
+  if (ms.has()) {
+    auto ims = ms.get().iter();
+
+    while (ims.has_next()) {
+      printf("%c", ims.next());
+    }
+  }
+  
+  if (ms2.has()) {
+    auto ims2 = ms2.get().iter();
+
+    while (ims2.has_next()) {
+      printf("%c", ims2.next());
+    }
+  }
+
+  if (ms3.has()) {
+    auto ims = ms3.get().iter();
+
+    while (ims.has_next()) {
+      printf("%c", ims.next());
+    }
+  }
 }
