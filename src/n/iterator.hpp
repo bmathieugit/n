@@ -14,7 +14,8 @@ template <typename I>
 concept __iterator_next = requires(I i) { i.next(); };
 
 template <typename I>
-concept iterator = __iterator_has_next<I> and __iterator_next<I>;
+concept iterator =
+    __iterator_has_next<I> and __iterator_next<I>;
 
 template <typename O, typename T>
 concept oterator = requires(O o, T t) { o.sext(t); };
@@ -78,6 +79,9 @@ class limit_iterator {
     _limit -= 1;
     return _it.next();
   }
+
+
+  constexpr auto len() const { return _limit; }
 };
 
 template <character C>

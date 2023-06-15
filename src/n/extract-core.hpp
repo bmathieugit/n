@@ -19,68 +19,70 @@ concept istream_fragment = iterator<I> and requires(I i) {
                                              { i.next() } -> basic_same_as<IU>;
                                            };
 
-
 template <typename T, typename I, typename IU>
-concept extractable = istream_fragment<I, IU> and requires(I i, maybe<T>& t) {
-                                                    extractor<T, IU>::to(i, t);
-                                                  };
-
-template <typename IU, istream_fragment<IU> I, typename T>
-void __extract_one_to(I input, maybe<T>& t) {
-  extractor<T, IU>::to(input, t);
-}
+concept extractable =
+    istream_fragment<I, IU> and
+    requires(I i, maybe<T>& t) {
+      extractor<T, IU>::to(limit_iterator<I>(i, size_t(0)), t);
+    };
 
 template <typename T>
 class extract_pattern_iterator;
 
-template<typename IU, istream_fragment<IU> I> 
-constexpr void __extract_escape(I& i, extract_pattern_iterator<IU>& pattern) {
+enum class extract_error : int {
+  analyse_ok,
+  pattern_missing_joker,
+  pattern_toomany_joker,
+  parsing_failed,
+  mismatch_input_pattern,
+  empty_input_tail,
+  notempty_input_tail,
+  notempty_pattern_tail
+};
 
-}
+template <typename IU, istream_fragment<IU> I, extractable<I, IU> T0,
+          extractable<I, IU>... TN>
+constexpr extract_error __extract(I input, extract_pattern_iterator<IU> pattern,
+                                  maybe<T0>& t0, maybe<TN>&... tn) {
+  while (input.has_next() and pattern.has_next()) {
+    auto&& cp = pattern.next();
 
-template <typename IU, istream_fragment<IU> I, extractable<I, IU>... T>
-constexpr void __extract(I input, extract_pattern_iterator<IU> pattern, maybe<T>&... t) {
-  if constexpr (sizeof...(T) > 0) {
-    array<limit_iterator<I>, sizeof...(T)> items;
-
-    auto ii = input;
-    auto ip = pattern;
-
-    ((__extract_escape(input, pattern), items.push(extractor<T, IU>::from(input))), ...);
-/*
-    while (ii.has_next() and ip.has_next()) {
-      auto start = ii;
-
-      auto ci = ii.next();
-      auto cp = ip.next();
-
-      if (cp == ci)
-        continue;
-
-      else if (cp == extract_joker<IU>) {
-        auto offset = 1;
-
-        if (ip.has_next()) {
-          auto limit = ip.next();
-
-          while (ii.has_next() && (ci = ii.next()) != limit) {
-            offset += 1;
-          }
-        } else {
-          while (ii.has_next()) {
-            ii.next();
-            offset += 1;
-          }
-        }
-
-        items.push(limit_iterator<I>(start, offset));
-      }
+    if (cp == extract_joker<IU>) {
+      break;
     }
-*/
-    if (items.len() == sizeof...(T)) {
-      auto iitems = items.iter();
-      ((__extract_one_to<IU>(iitems.next(), t)), ...);
+
+    auto&& ci = input.next();
+
+    if (cp == ci) {
+      continue;
+    } else {
+      return extract_error::mismatch_input_pattern;
     }
+  }
+
+  if (!input.has_next()) {
+    return extract_error::empty_input_tail;
+  }
+
+  auto len = extractor<T0, IU>::len(input);
+
+  if (len == 0 or !extractor<T0, IU>::to(limit_iterator<I>(input, len), t0)) {
+    return extract_error::parsing_failed;
+  }
+
+  while (len != 0 && input.has_next()) {
+    input.next();
+    len--;
+  }
+
+  if constexpr (sizeof...(TN) > 0) {
+    return __extract(input, pattern, tn...);
+  } else if (pattern.has_next()) {
+    return extract_error::notempty_pattern_tail;
+  } else if (input.has_next()) {
+    return extract_error::notempty_input_tail;
+  } else {
+    return extract_error::analyse_ok;
   }
 }
 
