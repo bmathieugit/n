@@ -30,6 +30,17 @@ template <character C>
 class extractor<C, C> {
  public:
   template <istream_fragment<C> I>
+  static constexpr limit_iterator<I> from(I& i) {
+    if (i.has_next()) {
+      auto itmp = limit_iterator<I>(i, 1);
+      i.next();
+      return itmp;
+    } else {
+      return limit_iterator<I>(i, 0);
+    }
+  }
+
+  template <istream_fragment<C> I>
   static constexpr void to(I input, maybe<C>& mc) {
     C c = input.next();
     mc = move(c);
@@ -39,6 +50,26 @@ class extractor<C, C> {
 template <character C>
 class extractor<string<C>, C> {
  public:
+  template <istream_fragment<C> I>
+  static constexpr limit_iterator<I> from(I& i) {
+    auto itmp = i;
+    auto size = 0;
+
+    if (i.has_next() && i.next() == '"') {
+      size++;
+      C c;
+
+      while (i.has_next() and (c = i.next()) != '"') size++;
+
+      if (c == '"') {
+        size++;
+        return limit_iterator<I>(itmp, size);
+      }
+    }
+
+    return limit_iterator<I>(itmp, 0);
+  }
+
   template <istream_fragment<C> I>
   static constexpr void to(I input, maybe<string<C>>& ms) {
     string<C> s;
@@ -55,6 +86,15 @@ template <unsigned_integral SI, character C>
 class extractor<SI, C> {
  public:
   template <istream_fragment<C> I>
+  static constexpr limit_iterator<I> from(I& i) {
+    auto itmp = i;
+    auto size = 0;
+    C c;
+    while (i.has_next() && '0' <= (c = i.next()) && c <= '9') size++;
+    return limit_iterator<I>(itmp, size);
+  }
+
+  template <istream_fragment<C> I>
   static constexpr void to(I i, maybe<SI>& msi) {
     SI si = 0;
 
@@ -69,6 +109,28 @@ class extractor<SI, C> {
 template <signed_integral SI, character C>
 class extractor<SI, C> {
  public:
+  template <istream_fragment<C> I>
+  static constexpr limit_iterator<I> from(I& i) {
+    C c;
+    auto size = 0;
+    auto itmp = i;
+
+    if (i.has_next()) {
+      c = i.next();
+      if (c == '+' || c == '-' || ('0' <= c && c <= '9')) {
+        size++;
+        while (i.has_next() && '0' <= (c = i.next()) && c <= '9') {
+          size++;
+        }
+        if ('0' <= c && c <= '9') {
+          return limit_iterator<I>(itmp, size);
+        }
+      }
+    }
+
+    return limit_iterator<I>(itmp, 0);
+  }
+
   template <istream_fragment<C> I>
   static constexpr void to(I i, maybe<SI>& msi) {
     bool neg = false;
@@ -102,6 +164,22 @@ class extractor<SI, C> {
 template <character C>
 class extractor<bool, C> {
  public:
+  template <istream_fragment<C> I>
+  static constexpr limit_iterator<I> from(I& i) {
+    auto itmp = i;
+    auto itmp0 = limit_iterator<I>(i, 4);
+    auto itmp1 = limit_iterator<I>(i, 5);
+    auto size = 0;
+    if (equal(itmp0, cstring_iterator("true"))) {
+      while (size++ < 4) i.next();
+      return itmp0;
+    } else if (equal(itmp1, cstring_iterator("false"))) {
+      while (size++ < 5) i.next();
+      return itmp1;
+    } else
+      return limit_iterator<I>(itmp, 0);
+  }
+
   template <istream_fragment<C> I>
   static constexpr void to(I i, maybe<bool>& mb) {
     auto itrue = cstring_iterator("true");

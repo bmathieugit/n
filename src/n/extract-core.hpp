@@ -33,6 +33,11 @@ void __extract_one_to(I input, maybe<T>& t) {
 template <typename T>
 class extract_pattern_iterator;
 
+template<typename IU, istream_fragment<IU> I> 
+constexpr void __extract_escape(I& i, extract_pattern_iterator<IU>& pattern) {
+
+}
+
 template <typename IU, istream_fragment<IU> I, extractable<I, IU>... T>
 constexpr void __extract(I input, extract_pattern_iterator<IU> pattern, maybe<T>&... t) {
   if constexpr (sizeof...(T) > 0) {
@@ -41,6 +46,8 @@ constexpr void __extract(I input, extract_pattern_iterator<IU> pattern, maybe<T>
     auto ii = input;
     auto ip = pattern;
 
+    ((__extract_escape(input, pattern), items.push(extractor<T, IU>::from(input))), ...);
+/*
     while (ii.has_next() and ip.has_next()) {
       auto start = ii;
 
@@ -69,7 +76,7 @@ constexpr void __extract(I input, extract_pattern_iterator<IU> pattern, maybe<T>
         items.push(limit_iterator<I>(start, offset));
       }
     }
-
+*/
     if (items.len() == sizeof...(T)) {
       auto iitems = items.iter();
       ((__extract_one_to<IU>(iitems.next(), t)), ...);
