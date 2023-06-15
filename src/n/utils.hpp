@@ -86,6 +86,15 @@ template <typename T>
 concept character = same_as<T, char> or same_as<T, wchar_t>;
 
 template <typename T>
+concept signed_integral = same_as<T, short> or same_as<T, int> or
+                          same_as<T, long> or same_as<T, long long>;
+
+template <typename T>
+concept unsigned_integral =
+    same_as<T, unsigned short> or same_as<T, unsigned int> or
+    same_as<T, unsigned long> or same_as<T, unsigned long long>;
+
+template <typename T>
 concept default_constructible = requires { T(); };
 
 template <character C>

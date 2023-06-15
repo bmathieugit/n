@@ -65,15 +65,6 @@ class formatter<string<C>, C> {
   }
 };
 
-template <typename T>
-concept signed_integral = same_as<T, short> or same_as<T, int> or
-                          same_as<T, long> or same_as<T, long long>;
-
-template <typename T>
-concept unsigned_integral =
-    same_as<T, unsigned short> or same_as<T, unsigned int> or
-    same_as<T, unsigned long> or same_as<T, unsigned long long>;
-
 template <signed_integral I, character C>
 class formatter<I, C> {
  public:

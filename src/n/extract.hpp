@@ -4,6 +4,7 @@
 #include <n/array.hpp>
 #include <n/extract-core.hpp>
 #include <n/string.hpp>
+#include <n/utils.hpp>
 
 namespace n {
 
@@ -26,6 +27,16 @@ constexpr void extract(I input, extract_pattern_iterator<char> pattern,
 }
 
 template <character C>
+class extractor<C, C> {
+ public:
+  template <istream_fragment<C> I>
+  static constexpr void to(I input, maybe<C>& mc) {
+    C c = input.next();
+    mc = move(c);
+  }
+};
+
+template <character C>
 class extractor<string<C>, C> {
  public:
   template <istream_fragment<C> I>
@@ -37,6 +48,70 @@ class extractor<string<C>, C> {
     }
 
     ms = move(s);
+  }
+};
+
+template <unsigned_integral SI, character C>
+class extractor<SI, C> {
+ public:
+  template <istream_fragment<C> I>
+  static constexpr void to(I i, maybe<SI>& msi) {
+    SI si = 0;
+
+    while (i.has_next()) {
+      si = 10 * si + i.next() - '0';
+    }
+
+    msi = move(si);
+  }
+};
+
+template <signed_integral SI, character C>
+class extractor<SI, C> {
+ public:
+  template <istream_fragment<C> I>
+  static constexpr void to(I i, maybe<SI>& msi) {
+    bool neg = false;
+    SI si = 0;
+
+    if (i.has_next()) {
+      auto c = i.next();
+
+      if (c == '+') {
+        neg = false;
+      } else if (c == '-') {
+        neg = true;
+      } else {
+        neg = false;
+        si = c - '0';
+      }
+    }
+
+    while (i.has_next()) {
+      si = 10 * si + (i.next() - '0');
+    }
+
+    if (neg) {
+      si *= -1;
+    }
+
+    msi = move(si);
+  }
+};
+
+template <character C>
+class extractor<bool, C> {
+ public:
+  template <istream_fragment<C> I>
+  static constexpr void to(I i, maybe<bool>& mb) {
+    auto itrue = cstring_iterator("true");
+    auto ifalse = cstring_iterator("false");
+
+    if (equal(itrue, i)) {
+      mb = true;
+    } else if (equal(ifalse, i)) {
+      mb = false;
+    }
   }
 };
 

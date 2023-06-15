@@ -50,7 +50,7 @@ constexpr void __extract(I input, extract_pattern_iterator<IU> pattern, maybe<T>
       if (cp == ci)
         continue;
 
-      else if (cp == '$') {
+      else if (cp == extract_joker<IU>) {
         auto offset = 1;
 
         if (ip.has_next()) {
