@@ -60,16 +60,16 @@ class pointer_oterator {
   }
 };
 
-template <typename T>
-class pointer_limit_iterator {
+template <iterator I>
+  requires default_constructible<I>
+class limit_iterator {
  private:
-  pointer_iterator<T> _it;
+  I _it;
   size_t _limit;
 
  public:
-  constexpr pointer_limit_iterator() : _it(), _limit(0) {}
-  constexpr pointer_limit_iterator(pointer_iterator<T> it, size_t limit)
-      : _it(it), _limit(limit) {}
+  constexpr limit_iterator() : _it(), _limit(0) {}
+  constexpr limit_iterator(I it, size_t limit) : _it(move(it)), _limit(limit) {}
 
  public:
   constexpr bool has_next() const { return _limit != 0 and _it.has_next(); }

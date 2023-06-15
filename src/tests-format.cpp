@@ -83,7 +83,7 @@ int main() {
   n::maybe<n::string<char>> ms2;
   n::maybe<n::string<char>> ms3;
 
-  n::extract(input, pattern, ms, ms2, ms3);
+  n::extract(input.iter(), "Hello $ et $ !!$", ms, ms2, ms3);
   
   if (ms.has()) {
     auto ims = ms.get().iter();

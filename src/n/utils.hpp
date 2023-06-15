@@ -49,6 +49,25 @@ template <typename T>
 using rm_ref = typename __rm_ref<T>::type;
 
 template <typename T>
+struct __rm_const {
+  using type = T;
+};
+
+template <typename T>
+struct __rm_const<const T> {
+  using type = T;
+};
+
+template <typename T>
+using rm_const = typename __rm_const<T>::type;
+
+template <typename T>
+using rm_cref = rm_const<rm_ref<T>>;
+
+template <typename T, typename U>
+concept basic_same_as = __same_as<rm_cref<T>, rm_cref<U>>;
+
+template <typename T>
 constexpr rm_ref<T>&& move(T&& t) {
   return static_cast<rm_ref<T>&&>(t);
 }

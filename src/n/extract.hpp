@@ -2,60 +2,34 @@
 #define __n_extract_hpp__
 
 #include <n/array.hpp>
-#include <n/string.hpp>
 #include <n/extract-core.hpp>
+#include <n/string.hpp>
 
 namespace n {
 
-template <character C, typename... T>
-void extract(const string<C>& input, const string<C>& pattern, maybe<T>&... t) {
-  if constexpr (sizeof...(T) > 0) {
-    array<pointer_limit_iterator<const C>, sizeof...(T)> items;
+template <>
+inline constexpr char extract_joker<char> = '$';
 
-    auto ii = input.iter();
-    auto ip = pattern.iter();
+template <>
+inline constexpr wchar_t extract_joker<wchar_t> = L'$';
 
-    while (ii.has_next() and ip.has_next()) {
-      auto start = ii;
+template <character C>
+class extract_pattern_iterator<C> : public cstring_iterator<C> {
+ public:
+  constexpr extract_pattern_iterator(const C* s) : cstring_iterator<C>(s) {}
+};
 
-      auto ci = ii.next();
-      auto cp = ip.next();
-
-      if (cp == ci)
-        continue;
-
-      else if (cp == '$') {
-        auto offset = 1;
-
-        if (ip.has_next()) {
-          auto limit = ip.next();
-          
-          while (ii.has_next() && (ci = ii.next()) != limit) {
-            offset += 1;
-          }
-        } else {
-          while (ii.has_next()) {
-            ii.next();
-            offset += 1;
-          }
-        }
-
-        items.push(pointer_limit_iterator<const C>(start, offset));
-      }
-    }
-
-    if (items.len() == sizeof...(T)) {
-      auto iitems = items.iter();
-      ((extract_one_to(iitems.next(), t)), ...);
-    }
-  }
+template <istream_fragment<char> I, extractable<I, char>... T>
+constexpr void extract(I input, extract_pattern_iterator<char> pattern,
+                       maybe<T>&... t) {
+  return __extract(input, pattern, t...);
 }
 
 template <character C>
-class extractor<string<C>> {
+class extractor<string<C>, C> {
  public:
-  static constexpr void to(pointer_limit_iterator<const C> input,
-                           maybe<string<C>>& ms) {
+  template <istream_fragment<C> I>
+  static constexpr void to(I input, maybe<string<C>>& ms) {
     string<C> s;
 
     while (input.has_next()) {
