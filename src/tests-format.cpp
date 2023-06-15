@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-#include <n/extract.hpp>
 #include <n/format.hpp>
 #include <n/iterator.hpp>
 #include <n/tests.hpp>
