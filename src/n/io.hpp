@@ -4,9 +4,10 @@
 #include <stdio.h>
 
 #include <n/format.hpp>
-#include <n/maybe.hpp>
+#include <n/result.hpp>
 #include <n/string.hpp>
 #include <n/vector.hpp>
+#include <n/maybe.hpp>
 
 namespace n {
 enum class from : int { start = SEEK_SET, end = SEEK_END, cur = SEEK_CUR };
