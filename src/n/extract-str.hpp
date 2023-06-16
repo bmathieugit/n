@@ -31,17 +31,12 @@ template <character C>
 class extractor<C, C> {
  public:
   template <istream_fragment<C> I>
-  static constexpr size_t len(I input) {
-    return input.has_next() ? 1 : 0;
-  }
-
-  template <istream_fragment<C> I>
-  static constexpr bool to(limit_iterator<I> input, maybe<C>& mc) {
+  static constexpr size_t  to(I input, maybe<C>& mc) {
     if (input.has_next()) {
       mc = move(input.next());
-      return true;
+      return 1;
     } else {
-      return false;
+      return 0;
     }
   }
 };
@@ -50,49 +45,23 @@ template <character C>
 class extractor<string<C>, C> {
  public:
   template <istream_fragment<C> I>
-  static constexpr size_t len(I input) {
-    if (input.has_next() and input.next() == '"') {
-      size_t l = 1;
-
-      if (input.has_next()) {
-        auto c = input.next();
-
-        if (c == '"') {
-          return 2;
-        } else {
-          l++;
-        }
-
-        while (input.has_next()) {
-          c = input.next();
-
-          if (c != '"') {
-            ++l;
-          } else {
-            break;
-          }
-        }
-
-        if (c == '"') {
-          return l + 1;
-        }
-      }
-    }
-
-    return 0;
-  }
-
-  template <istream_fragment<C> I>
-  static constexpr bool to(limit_iterator<I> input, maybe<string<C>>& ms) {
+  static constexpr size_t to(I input, maybe<string<C>>& ms) {
     string<C> tmp;
-
-    if (input.has_next() && input.len() >= 2) {
+    size_t l = 0;
+    if (input.has_next()) {
       auto c = input.next();
+
+      if (c != '"') {
+        return 0;
+      } else {
+        ++l;
+      }
 
       while (input.has_next()) {
         c = input.next();
 
         if (c != '"') {
+          ++l;
           tmp.push(c);
         } else {
           break;
@@ -100,12 +69,13 @@ class extractor<string<C>, C> {
       }
 
       if (c == '"') {
+        ++l;
         ms = move(tmp);
-        return true;
+        return l;
       }
     }
 
-    return false;
+    return 0;
   }
 };
 
@@ -113,26 +83,13 @@ template <unsigned_integral SI, character C>
 class extractor<SI, C> {
  public:
   template <istream_fragment<C> I>
-  static constexpr size_t len(I input) {
-    size_t l = 0;
-
-    while (input.has_next()) {
-      auto c = input.next();
-
-      if ('0' <= c and c <= '9') {
-        ++l;
-      }
-    }
-
-    return l;
-  }
-
-  template <istream_fragment<C> I>
-  static constexpr bool to(limit_iterator<I> input, maybe<SI>& msi) {
+  static constexpr size_t to(I input, maybe<SI>& msi) {
     if (input.has_next()) {
+      size_t l = 0;
       auto c = input.next();
 
       if ('0' <= c && c <= '9') {
+        ++l;
         SI si = c - '0';
 
         while (input.has_next()) {
@@ -140,17 +97,18 @@ class extractor<SI, C> {
 
           if ('0' <= c and c <= '9') {
             si = 10 * si + c - '0';
+            ++l;
           } else {
             break;
           }
         }
 
         msi = move(si);
-        return true;
+        return l;
       }
     }
 
-    return false;
+    return 0;
   }
 };
 
@@ -158,64 +116,45 @@ template <signed_integral SI, character C>
 class extractor<SI, C> {
  public:
   template <istream_fragment<C> I>
-  static constexpr size_t len(I input) {
+  static constexpr size_t to(I input, maybe<SI>& msi) {
     size_t l = 0;
-    if (input.has_next()) {
-      auto c = input.next();
 
-      if (c == '+' or c == '-' or ('0' <= c and c <= '9')) {
-        ++l;
-
-        while (input.has_next()) {
-          c = input.next();
-
-          if ('0' <= c and c <= '9') {
-            ++l;
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-    return l;
-  }
-
-  template <istream_fragment<C> I>
-  static constexpr bool to(limit_iterator<I> input, maybe<SI>& msi) {
     if (input.has_next()) {
       auto c = input.next();
       bool neg = false;
 
       if (c == '-') {
         neg = true;
-
+        ++l;
         if (input.has_next()) {
           c = input.next();
         }
       } else if (c == '+' && input.has_next()) {
+        ++l;
         c = input.next();
       }
 
       if ('0' <= c && c <= '9') {
         SI si = c - '0';
+        ++l;
 
         while (input.has_next()) {
           c = input.next();
-        
+
           if ('0' <= c and c <= '9') {
             si = 10 * si + c - '0';
+            ++l;
           } else {
             break;
           }
         }
 
         msi = move(neg ? -si : si);
-        return true;
+        return l;
       }
     }
 
-    return false;
+    return 0;
   }
 };
 
@@ -223,32 +162,18 @@ template <character C>
 class extractor<bool, C> {
  public:
   template <istream_fragment<C> I>
-  static constexpr size_t len(I i) {
-    constexpr auto itrue = cstring_iterator("true");
-    constexpr auto ifalse = cstring_iterator("false");
-
-    if (equal(itrue, i)) {
-      return 4;
-    } else if (equal(ifalse, i)) {
-      return 5;
-    } else {
-      return 0;
-    }
-  }
-
-  template <istream_fragment<C> I>
-  static constexpr bool to(limit_iterator<I> i, maybe<bool>& mb) {
+  static constexpr size_t to(I i, maybe<bool>& mb) {
     constexpr auto itrue = cstring_iterator("true");
     constexpr auto ifalse = cstring_iterator("false");
 
     if (equal(itrue, i)) {
       mb = true;
-      return true;
+      return 4;
     } else if (equal(ifalse, i)) {
       mb = false;
-      return true;
+      return 5;
     } else {
-      return false;
+      return 0;
     }
   }
 };

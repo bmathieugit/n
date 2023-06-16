@@ -23,7 +23,7 @@ template <typename T, typename I, typename IU>
 concept extractable =
     istream_fragment<I, IU> and
     requires(I i, maybe<T>& t) {
-      extractor<T, IU>::to(limit_iterator<I>(i, size_t(0)), t);
+      extractor<T, IU>::to(i, t);
     };
 
 template <typename T>
@@ -64,9 +64,9 @@ constexpr extract_error __extract(I input, extract_pattern_iterator<IU> pattern,
     return extract_error::empty_input_tail;
   }
 
-  auto len = extractor<T0, IU>::len(input);
+  size_t len = extractor<T0, IU>::to(input, t0);
 
-  if (len == 0 or !extractor<T0, IU>::to(limit_iterator<I>(input, len), t0)) {
+  if (len == 0) {
     return extract_error::parsing_failed;
   }
 
