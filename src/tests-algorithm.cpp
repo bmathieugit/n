@@ -1,8 +1,9 @@
-#include <n/algorithm.hpp>
+#include <n/io.hpp>
 #include <n/tests.hpp>
 
-// TODO all algorithm tests.
-
 int main() {
+  n::string<char> bob = n::str("bob");
+  n::printf("coucou $", bob);
+
   return 0;
 }

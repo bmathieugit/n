@@ -7,7 +7,6 @@
 #include <n/result.hpp>
 #include <n/string.hpp>
 #include <n/vector.hpp>
-#include <n/maybe.hpp>
 
 namespace n {
 enum class from : int { start = SEEK_SET, end = SEEK_END, cur = SEEK_CUR };
@@ -48,6 +47,73 @@ constexpr bool settable_mode = pathable_mode<m>;
 enum class seek : int { set = SEEK_SET, cur = SEEK_CUR, end = SEEK_END };
 
 template <typename T, mode m>
+class file;
+
+template <typename T, mode m>
+  requires readable_mode<m>
+class file_iterator {
+ private:
+  file<T, m> *_file = nullptr;
+  mutable maybe<T> _cur;
+  mutable bool _consumed = false;
+
+ public:
+  ~file_iterator() = default;
+  file_iterator() = default;
+  file_iterator(file<T, m> *f) : _file(f) {}
+  file_iterator(const file_iterator &) = default;
+  file_iterator(file_iterator &&) = default;
+  file_iterator &operator=(const file_iterator &) = default;
+  file_iterator &operator=(file_iterator &&) = default;
+
+ public:
+  bool has_next() const {
+    if (_file != nullptr && _file->opened()) {
+      if (_consumed) {
+        _cur = _file->pop();
+        _consumed = false;
+      }
+    }
+
+    return _cur.has();
+  }
+
+  T next() {
+    _consumed = true;
+    return move(_cur.get());
+  }
+};
+
+template <typename T, mode m>
+  requires writable_mode<m>
+class file_oterator {
+ private:
+  file<T, m> *_file;
+
+ public:
+  file_oterator() = default;
+  file_oterator(file<T, m> *f) : _file(f) {}
+
+  file_oterator(const file_oterator &) = default;
+  file_oterator(file_oterator &&) = default;
+  file_oterator &operator=(const file_oterator &) = default;
+  file_oterator &operator=(file_oterator &&) = default;
+
+ public:
+  void sext(const T &t) {
+    if (_file != nullptr and _file->opened()) {
+      _file->push(t);
+    }
+  }
+
+  void sext(T &&t) {
+    if (_file != nullptr and _file->opened()) {
+      _file->push(move(t));
+    }
+  }
+};
+
+template <typename T, mode m>
 class file {
  private:
   FILE *_fd = nullptr;
@@ -63,6 +129,7 @@ class file {
 
  public:
   ~file() { close(); }
+  file() = default;
   file(const char *path)
     requires pathable_mode<m>
       : _fd(fopen(path, modechr[size_t(m)])) {}
@@ -94,7 +161,7 @@ class file {
     requires writable_mode<m>
   {
     if (_fd != nullptr) {
-      fwrite(&t, sizeof(rm_cvref<T>), 1, _fd);
+      fwrite(&t, sizeof(rm_cref<T>), 1, _fd);
     }
   }
 
@@ -113,20 +180,33 @@ class file {
 
     return res;
   }
+
+ public:
+  file_iterator<T, m> iter()
+    requires readable_mode<m>
+  {
+    return file_iterator<T, m>(*this);
+  }
+
+  file_oterator<T, m> oter()
+    requires writable_mode<m>
+  {
+    return file_oterator<T, m>(*this);
+  }
 };
 
 static auto stdr = file<char, mode::std_in>(stdin);
 static auto stdw = file<char, mode::std_out>(stdout);
 
 namespace impl {
-template <character C, formattable... T>
-void printf(string_view<C> fmt, const T &...t) {
+template <character C, formattable<C, file<C, mode::std_out>>... T>
+void printf(format_pattern_iterator<C> fmt, const T &...t) {
   format_to(stdw, fmt, t...);
 }
 }  // namespace impl
 
-template<formattable... T>
-void printf(string_view<char> fmt, const T&...t) {
+template <formattable<char, file<char, mode::std_out>>... T>
+void printf(format_pattern_iterator<char> fmt, const T &...t) {
   impl::printf(fmt, t...);
 }
 

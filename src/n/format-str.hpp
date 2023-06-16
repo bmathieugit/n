@@ -16,17 +16,19 @@ inline constexpr wchar_t format_joker<wchar_t> = L'$';
 template <character C>
 class format_pattern_iterator<C> : public cstring_iterator<C> {
  public:
-  format_pattern_iterator(const C* s) : cstring_iterator<C>(s) {}
+  constexpr format_pattern_iterator(const C* s) : cstring_iterator<C>(s) {}
 };
 
 template <formattable<char, string<char>>... T>
-constexpr string<char> format(const char* fmt, const T&... t) {
-  return __format<char, string<char>>(format_pattern_iterator<char>(fmt), t...);
+constexpr string<char> format(format_pattern_iterator<char> fmt,
+                              const T&... t) {
+  return __format<char, string<char>>(fmt, t...);
 }
 
 template <ostream<char> O, formattable<char, O>... T>
-constexpr void format_to(O& dest, const char* fmt, const T&... t) {
-  return __format_to(dest, format_pattern_iterator<char>(fmt), t...);
+constexpr void format_to(O& dest, format_pattern_iterator<char> fmt,
+                         const T&... t) {
+  return __format_to(dest, fmt, t...);
 }
 
 template <character C>
