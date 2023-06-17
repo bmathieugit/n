@@ -55,7 +55,7 @@ class file_iterator {
  private:
   file<T, m> *_file = nullptr;
   mutable maybe<T> _cur;
-  mutable bool _consumed = false;
+  mutable bool _consumed = true;
 
  public:
   ~file_iterator() = default;
@@ -174,7 +174,7 @@ class file {
       T buff;
 
       if (fread(&buff, sizeof(T), 1, _fd) == 1) {
-        res = transfer(buff);
+        res = move(buff);
       }
     }
 
@@ -182,14 +182,12 @@ class file {
   }
 
  public:
-  file_iterator<T, m> iter()
-    requires readable_mode<m>
+  auto iter() requires readable_mode<m>
   {
     return file_iterator<T, m>(this);
   }
 
-  file_oterator<T, m> oter()
-    requires writable_mode<m>
+  auto oter() requires writable_mode<m>
   {
     return file_oterator<T, m>(this);
   }
