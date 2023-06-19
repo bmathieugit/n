@@ -102,7 +102,7 @@ class vector {
       auto tmp = new T[_max * 2 + 10];
       pointer_iterator<T> idata(_data, _data + _len);
       pointer_oterator<T> otmp(tmp, tmp + _len);
-      transfer<T>(idata, otmp);
+      move<T>(idata, otmp);
       delete[] _data;
       _data = tmp;
       _max = _max * 2 + 10;
@@ -117,7 +117,7 @@ class vector {
       auto tmp = new T[_max * 2 + 10];
       pointer_iterator<T> idata(_data, _data + _len);
       pointer_oterator<T> otmp(tmp, tmp + _len);
-      transfer<T>(idata, otmp);
+      move<T>(idata, otmp);
       delete[] _data;
       _data = tmp;
       _max = _max * 2 + 10;

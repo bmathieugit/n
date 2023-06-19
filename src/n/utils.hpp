@@ -97,6 +97,15 @@ concept unsigned_integral =
 template <typename T>
 concept default_constructible = requires { T(); };
 
+template <typename T, typename U>
+concept has_equals_operator = requires(const T& t, const U& u) { t == u; };
+
+template <typename T, typename U>
+concept has_diffs_operator = requires(const T& t, const U& u) { t != u; };
+
+
+
+
 template <character C>
 constexpr size_t strlen(const C* s) {
   size_t i = 0;

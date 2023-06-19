@@ -14,8 +14,7 @@ template <typename I>
 concept __iterator_next = requires(I i) { i.next(); };
 
 template <typename I>
-concept iterator =
-    __iterator_has_next<I> and __iterator_next<I>;
+concept iterator = __iterator_has_next<I> and __iterator_next<I>;
 
 template <typename O, typename T>
 concept oterator = requires(O o, T t) { o.sext(t); };
@@ -80,7 +79,6 @@ class limit_iterator {
     return _it.next();
   }
 
-
   constexpr auto len() const { return _limit; }
 };
 
@@ -109,7 +107,7 @@ constexpr void copy(I i, O o) {
 }
 
 template <typename T, iterator I, oterator<T> O>
-constexpr void transfer(I i, O o) {
+constexpr void move(I i, O o) {
   while (i.has_next()) {
     o.sext(move(i.next()));
   }
@@ -122,5 +120,33 @@ constexpr bool equal(I0 i0, I1 i1) {
 
   return !i0.has_next() and !i1.has_next();
 }
+
+template <typename T, iterator I, oterator<T> O>
+  requires has_equals_operator<T, T>
+constexpr void copy_until(I i, O o, const T& del) {
+  while (i.has_next()) {
+    const auto& item = i.next();
+    if (item == del) {
+      break;
+    } else {
+      o.sext(item);
+    }
+  }
+}
+
+
+template <typename T, iterator I, oterator<T> O>
+  requires has_equals_operator<T, T>
+constexpr void move_until(I i, O o, const T& del) {
+  while (i.has_next()) {
+    auto&& item = move(i.next());
+    if (item == del) {
+      break;
+    } else {
+      o.sext(move(item));
+    }
+  }
+}
+
 }  // namespace n
 #endif

@@ -80,12 +80,8 @@ void test_file_oterator_writable_mode() {
   {
     n::file<char, n::mode::r> f(filename);
     n::string<char> s(100);
-
-    auto it = f.iter();
-
-    while (it.has_next()) {
-      s.push(it.next());
-    }
+    
+    copy<char>(f.iter(), s.oter());
 
     N_TEST_ASSERT_EQUALS(s, n::str("Hello\nWorld\n"));
   }

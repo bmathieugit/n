@@ -182,16 +182,19 @@ class file {
   }
 
  public:
-  auto iter() requires readable_mode<m>
+  auto iter()
+    requires readable_mode<m>
   {
     return file_iterator<T, m>(this);
   }
 
-  auto oter() requires writable_mode<m>
+  auto oter()
+    requires writable_mode<m>
   {
     return file_oterator<T, m>(this);
   }
 };
+
 
 static auto stdr = file<char, mode::std_in>(stdin);
 static auto stdw = file<char, mode::std_out>(stdout);
