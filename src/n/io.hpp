@@ -185,13 +185,13 @@ class file {
   file_iterator<T, m> iter()
     requires readable_mode<m>
   {
-    return file_iterator<T, m>(*this);
+    return file_iterator<T, m>(this);
   }
 
   file_oterator<T, m> oter()
     requires writable_mode<m>
   {
-    return file_oterator<T, m>(*this);
+    return file_oterator<T, m>(this);
   }
 };
 
