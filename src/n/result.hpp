@@ -214,6 +214,10 @@ class result {
   constexpr const T& get() const& { return _data.template get<T>(); }
   constexpr T&& get() && { return move(_data.template get<T>()); }
   constexpr const T&& get() const&& { return move(_data.template get<T>()); }
+  constexpr E& err() & { return _data.template get<E>(); }
+  constexpr const E& err() const& { return _data.template get<E>(); }
+  constexpr E&& err() && { return move(_data.template get<E>()); }
+  constexpr const E&& err() const&& { return move(_data.template get<E>()); }
 };
 
 template <typename T>

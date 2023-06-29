@@ -82,6 +82,35 @@ class limit_iterator {
   constexpr auto len() const { return _limit; }
 };
 
+template <typename T, oterator<T> O>
+  requires default_constructible<O>
+class limit_oterator {
+ private:
+  O _ot;
+  size_t _limit;
+
+ public:
+  constexpr limit_oterator() : _ot(), _limit(0) {}
+  constexpr limit_oterator(O ot, size_t limit) : _ot(move(ot)), _limit(limit) {}
+
+ public:
+  constexpr auto sext(const T& t) -> decltype(auto) {
+    if (_limit != 0) {
+      _limit -= 1;
+      return _ot.sext(t);
+    }
+  }
+
+  constexpr auto sext(T&& t) -> decltype(auto) {
+    if (_limit != 0) {
+      _limit -= 1;
+      return _ot.sext(move(t));
+    }
+  }
+
+  constexpr auto len() const { return _limit; }
+};
+
 template <character C>
 class cstring_iterator {
  private:
@@ -134,7 +163,6 @@ constexpr void copy_until(I i, O o, const T& del) {
   }
 }
 
-
 template <typename T, iterator I, oterator<T> O>
   requires has_equals_operator<T, T>
 constexpr void move_until(I i, O o, const T& del) {
@@ -146,6 +174,27 @@ constexpr void move_until(I i, O o, const T& del) {
       o.sext(move(item));
     }
   }
+}
+
+template <iterator I>
+constexpr I advance(I i, size_t n) {
+  while (n != 0) {
+    i.next();
+    n -= 1;
+  }
+
+  return i;
+}
+
+template <iterator I0, iterator I1>
+constexpr bool starts_with(I0 i0, I1 i1) {
+  while (i0.has_next() and i1.has_next()) {
+    if (i0.next() != i1.next()) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace n

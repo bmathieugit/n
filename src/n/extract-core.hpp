@@ -20,11 +20,9 @@ concept istream_fragment = iterator<I> and requires(I i) {
                                            };
 
 template <typename T, typename I, typename IU>
-concept extractable =
-    istream_fragment<I, IU> and
-    requires(I i, maybe<T>& t) {
-      extractor<T, IU>::to(i, t);
-    };
+concept extractable = istream_fragment<I, IU> and requires(I i, maybe<T>& t) {
+                                                    extractor<T, IU>::to(i, t);
+                                                  };
 
 template <typename T>
 class extract_pattern_iterator;
@@ -75,14 +73,24 @@ constexpr extract_error __extract(I input, extract_pattern_iterator<IU> pattern,
     len--;
   }
 
-  if constexpr (sizeof...(TN) > 0) {
+  if constexpr (sizeof...(TN) == 0) {
+    while (input.has_next() and pattern.has_next()) {
+      if (pattern.next() == input.next()) {
+        continue;
+      } else {
+        return extract_error::mismatch_input_pattern;
+      }
+    }
+
+    if (pattern.has_next()) {
+      return extract_error::notempty_pattern_tail;
+    } else if (input.has_next()) {
+      return extract_error::notempty_input_tail;
+    } else {
+      return extract_error::analyse_ok;
+    }
+  } else if constexpr (sizeof...(TN) > 0) {
     return __extract(input, pattern, tn...);
-  } else if (pattern.has_next()) {
-    return extract_error::notempty_pattern_tail;
-  } else if (input.has_next()) {
-    return extract_error::notempty_input_tail;
-  } else {
-    return extract_error::analyse_ok;
   }
 }
 

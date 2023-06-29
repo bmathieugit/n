@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS= -std=c++20 -O3 -save-temps
-CXXFLAGS+= -fconcepts-diagnostics-depth=10
+#CXXFLAGS+= -fconcepts-diagnostics-depth=10
 CXXINCS=-Isrc
 
 all: \
@@ -45,8 +45,13 @@ tests-io: src/tests-io.cpp building
 	${CXX} -o  building/tests-io.app src/tests-io.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests-io.app	
 
+tests-regex: src/tests-regex.cpp building
+	${CXX} -o  building/tests-regex.app src/tests-regex.cpp ${CXXFLAGS} ${CXXINCS}
+	./building/tests-regex.app	
 
-test: tests-vector tests-string tests-format tests-extract tests-io #tests-maybe tests-variant
+
+
+test: tests-vector tests-string tests-format tests-extract tests-io tests-regex#tests-maybe tests-variant
 
 install: 
 	mkdir -p dist
