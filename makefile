@@ -17,14 +17,6 @@ clean:
 building:
 	mkdir -p building
 
-tests-variant: src/tests-variant.cpp building
-	${CXX} -o  building/tests-variant.app src/tests-variant.cpp ${CXXFLAGS} ${CXXINCS}
-	./building/tests-variant.app	
-
-tests-maybe: src/tests-maybe.cpp building
-	${CXX} -o  building/tests-maybe.app src/tests-maybe.cpp ${CXXFLAGS} ${CXXINCS}
-	./building/tests-maybe.app	
-
 tests-string: src/tests-string.cpp building
 	${CXX} -o  building/tests-string.app src/tests-string.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests-string.app	
@@ -51,7 +43,7 @@ tests-regex: src/tests-regex.cpp building
 
 
 
-test: tests-vector tests-string tests-format tests-extract tests-io tests-regex#tests-maybe tests-variant
+test: tests-vector tests-string tests-format tests-extract tests-io tests-regex
 
 install: 
 	mkdir -p dist

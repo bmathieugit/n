@@ -178,7 +178,7 @@ constexpr void move_until(I i, O o, const T& del) {
 
 template <iterator I>
 constexpr I advance(I i, size_t n) {
-  while (n != 0 and I. has_next()) {
+  while (n != 0 and i.has_next()) {
     i.next();
     n -= 1;
   }

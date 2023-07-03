@@ -11,26 +11,16 @@ namespace n {
 enum class match_error : int { dont_match, regex_parsing_error, min_more_max };
 
 template <character C>
-struct rxlist {
+struct rxsqstring {
   string<char> ls;
 };
 
-template <unsigned_integral UI>
-struct rxmin {
-  UI min;
-};
-
-template <unsigned_integral UI>
-struct rxmax {
-  UI max;
-};
-
 template <character C>
-class extractor<rxlist<C>, C> {
+class extractor<rxsqstring<C>, C> {
  public:
   template <istream_fragment<C> i>
-  static constexpr size_t to(i input, maybe<rxlist<C>>& mls) {
-    rxlist<C> ls;
+  static constexpr size_t to(i input, maybe<rxsqstring<C>>& mls) {
+    rxsqstring<C> ls;
     size_t l = 0;
 
     if (input.has_next()) {
@@ -66,13 +56,92 @@ class extractor<rxlist<C>, C> {
 };
 
 template <character C>
+struct rxinterval {
+  C first;
+  C last;
+};
+
+template <character C>
+class extractor<rxinterval<C>, C> {
+ public:
+  template <istream_fragment<C> I>
+  static constexpr size_t to(I i, maybe<rxinterval<C>>& m) {
+    rxinterval<C> inter;
+    C first = '\0';
+    C minus = '\0';
+    C last = '\0';
+
+    if (i.has_next()) {
+      first = i.next();
+    }
+
+    if (i.has_next()) {
+      minus = i.next();
+    }
+
+    if (i.has_next()) {
+      last = i.next();
+    }
+
+    if (first != '\0' and minus == '-' and last != '\0') {
+      inter.first = first;
+      inter.last = last;
+
+      m = move(inter);
+      return 3;
+    }
+
+    return 0;
+  }
+};
+
+template <character C>
+struct rxlist {
+  variant<rxsqstring<C>, rxinterval<C>> ls;
+};
+
+template <character C>
+class extractor<rxlist<C>, C> {
+ public:
+  template <istream_fragment<C> I>
+  static constexpr size_t to(I i, maybe<rxlist<C>>& m) {
+    size_t s = 0;
+    rxlist<C> ls;
+
+    if (i.has_next()) {
+      auto itmp = i;
+      auto tmp = itmp.next();
+
+      if (tmp == '\'') {
+        maybe<rxsqstring<C>> msqs;
+        s = extractor<rxsqstring<C>, C>::to(i, msqs);
+
+        if (msqs.has()) {
+          ls.ls = move(msqs.get());
+          m = move(ls);
+        }
+      } else {
+        maybe<rxinterval<C>> minter;
+        s = extractor<rxinterval<C>, C>::to(i, minter);
+
+        if (minter.has()) {
+          ls.ls = move(minter.get());
+          m = move(ls);
+        }
+      }
+    }
+
+    return s;
+  }
+};
+
+template <character C>
 result<string<C>, match_error> search_expression(iterator auto irx,
                                                  iterator auto iin) {
-  C c = '\0';
-
   maybe<size_t> min;
   maybe<size_t> max;
   maybe<rxlist<C>> lst;
+
   bool parsed = false;
 
   using ee = extract_error;
@@ -87,26 +156,10 @@ result<string<C>, match_error> search_expression(iterator auto irx,
     parsed = true;
   }
 
-  // Il faudrait maintenant pouvoir gérer les intervals.
-  // C'est à dire les expressions du type : {a-z:0:1}
-  // Puis il faudrait gérer la combinaison des deux : {a-z'aa':0:10}.
-  // La seconde expression signifie : suite de lettre entre a et z 
-  // ou bien de couple de aa le tout entre 0 et 10 fois
-  // On pourrait isoler chaque class de caractère dans un item à part 
-  // dans un vector, puis itérer sur ce vector pour tester chaque possiblité
-  // et enfin voir ce qui match le mieux. Il ne faut pas oublier qu'il faut 
-  // former la plus longue réponse possible à la regex. Donc si des classes 
-  // de caractère se recoupe il faut prendre celle qui donne le resultat le plus
-  // long à chaque iteration. 
-  //
-  // Il y a une optimisation à apporter : le retour de la fonction pourrait être 
-  // non pas une string mais plutot une sorte de vue sur la sousstring qui
-  // correspond le plus à la regex. 
-
   if (parsed and lst.has() and min.has() and max.has()) {
     auto mn = min.get();
     auto mx = max.get();
-    auto ils = lst.get().ls.iter();
+    auto ils = lst.get().ls.get().iter();
 
     if (mn == 0 and mx == 0) {
       return string<C>();
@@ -117,7 +170,7 @@ result<string<C>, match_error> search_expression(iterator auto irx,
       while (starts_with(iin, ils) and cnt != mx) {
         cnt += 1;
         copy<C>(ils, tmp.oter());
-        iin = advance(iin, lst.get().ls.len());
+        iin = advance(iin, lst.get().ls.get().len());
       }
 
       if (mn <= cnt and cnt <= mx) {
@@ -136,10 +189,7 @@ result<string<C>, match_error> search_expression(iterator auto irx,
 template <character C>
 result<string<C>, match_error> search(const string<C>& rx,
                                       const string<C>& input) {
-  auto irx = rx.iter();
-  auto iin = input.iter();
-
-  return search_expression<C>(irx, iin);
+  return search_expression<C>(rx.iter(), input.iter());
 }
 }  // namespace n
 

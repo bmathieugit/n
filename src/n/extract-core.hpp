@@ -94,6 +94,25 @@ constexpr extract_error __extract(I input, extract_pattern_iterator<IU> pattern,
   }
 }
 
+template <typename T>
+struct tail_extract {};
+
+template <typename T, typename IU>
+class extractor<tail_extract<T>, IU> {
+ public:
+  template <istream_fragment<IU> I>
+  static constexpr size_t to(I i, maybe<T>&) {
+    size_t l = 0;
+
+    while (i.has_next()) {
+      i.next();
+      l += 1;
+    }
+
+    return l;
+  }
+};
+
 }  // namespace n
 
 #endif
