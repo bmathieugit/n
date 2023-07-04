@@ -2,12 +2,12 @@
 #include <n/regex.hpp>
 
 int main() {
-  auto found = n::search(n::str("{'aa':0:2}"), n::str("aaaaaabb"));
+  auto found = n::search(n::str("{'aa'a-zA-Z:0:2}"), n::str("aaaRaaabb"));
 
   if (found.has()) {
-    n::printf("$\n", found.get());
+    n::printf("'$'\n", found.get());
   } else {
-    n::printf("pas de match $\n", (int)found.err());
+    n::printf("pas de match '$'\n", (int)found.err());
   }
 
   return 0;

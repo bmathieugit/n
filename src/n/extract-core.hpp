@@ -27,6 +27,7 @@ concept extractable = istream_fragment<I, IU> and requires(I i, maybe<T>& t) {
 template <typename T>
 class extract_pattern_iterator;
 
+// TODO: renommer en extract_rc
 enum class extract_error : int {
   analyse_ok,
   pattern_missing_joker,
@@ -37,6 +38,9 @@ enum class extract_error : int {
   notempty_input_tail,
   notempty_pattern_tail
 };
+
+template <typename T>
+struct tail_extract {};
 
 template <typename IU, istream_fragment<IU> I, extractable<I, IU> T0,
           extractable<I, IU>... TN>
@@ -64,8 +68,10 @@ constexpr extract_error __extract(I input, extract_pattern_iterator<IU> pattern,
 
   size_t len = extractor<T0, IU>::to(input, t0);
 
-  if (len == 0) {
-    return extract_error::parsing_failed;
+  if constexpr (not same_as<T0, tail_extract<IU>>) {
+    if (len == 0) {
+      return extract_error::parsing_failed;
+    }
   }
 
   while (len != 0 && input.has_next()) {
@@ -94,14 +100,11 @@ constexpr extract_error __extract(I input, extract_pattern_iterator<IU> pattern,
   }
 }
 
-template <typename T>
-struct tail_extract {};
-
 template <typename T, typename IU>
 class extractor<tail_extract<T>, IU> {
  public:
   template <istream_fragment<IU> I>
-  static constexpr size_t to(I i, maybe<T>&) {
+  static constexpr size_t to(I i, maybe<tail_extract<T>>&) {
     size_t l = 0;
 
     while (i.has_next()) {
