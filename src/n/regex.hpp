@@ -238,7 +238,7 @@ constexpr result<size_t, match_rc> search_sequence(iterator auto iseq,
 }
 
 template <character C>
-constexpr result<string<C>, match_rc> search_expression(iterator auto irx,
+constexpr result<string_slice<C>, match_rc> search_expression(iterator auto irx,
                                               iterator auto iin) {
   maybe<size_t> min;
   maybe<size_t> max;
@@ -264,9 +264,11 @@ constexpr result<string<C>, match_rc> search_expression(iterator auto irx,
     auto ils = lst.get().ls;
 
     if (mn == 0 and mx == 0) {
-      return string<C>();
+      return string_slice<C>();
     } else if (mn <= mx) {
-      string<C> res;
+      auto iincp = iin;
+      size_t offset = 0;
+      size_t size = 0;
       size_t cnt = 0;
 
       while (ils.has_next() and cnt < mx and iin.has_next()) {
@@ -274,12 +276,12 @@ constexpr result<string<C>, match_rc> search_expression(iterator auto irx,
 
         if (localres.has()) {
           auto len = localres.get();
-          copy<C>(limit_iterator(iin, localres.get()), res.oter());
           iin = advance(iin, len);
           cnt += 1;
-          ::printf("%lu <= %lu <= %lu\n", mn, cnt, mx);
+          size += len;
         } else if (localres.err() == match_rc::dont_match) {
           if (cnt == 0) {
+            offset += 1;
             iin.next();
           } else {
             break;
@@ -290,7 +292,7 @@ constexpr result<string<C>, match_rc> search_expression(iterator auto irx,
       }
 
       if (mn <= cnt and cnt <= mx) {
-        return move(res);
+        return string_slice<C>(advance(iincp, offset), size);
       } else {
         return match_rc::dont_match;
       }
@@ -305,7 +307,7 @@ constexpr result<string<C>, match_rc> search_expression(iterator auto irx,
 }
 
 template <character C>
-constexpr result<string<C>, match_rc> search(const string<C>& rx,
+constexpr result<string_slice<C>, match_rc> search(const string<C>& rx,
                                    const string<C>& input) {
   return search_expression<C>(rx.iter(), input.iter());
 }
