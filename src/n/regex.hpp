@@ -9,24 +9,28 @@
 #include <n/utils.hpp>
 
 namespace n {
-// TODO: renommer en match_rc
-enum class match_error : int { dont_match, regex_parsing_error, min_more_max };
+
+enum class match_rc : int { dont_match, regex_parsing_error, min_more_max };
+
+template <character C>
+using string_slice = limit_iterator<pointer_iterator<const C>>;
 
 template <character C>
 struct rxsqstring {
-  string<char> ls;
+  string_slice<C> sqs;
 };
 
 template <character C>
 class extractor<rxsqstring<C>, C> {
  public:
-  template <istream_fragment<C> i>
-  static constexpr size_t to(i input, maybe<rxsqstring<C>>& mls) {
-    rxsqstring<C> ls;
+  template <istream_fragment<C> I>
+  static constexpr size_t to(I i, maybe<rxsqstring<C>>& msqs) {
+    auto icp = i;
+    rxsqstring<C> sqs;
     size_t l = 0;
 
-    if (input.has_next()) {
-      auto c = input.next();
+    if (i.has_next()) {
+      auto c = i.next();
 
       if (c != '\'') {
         return 0;
@@ -34,12 +38,11 @@ class extractor<rxsqstring<C>, C> {
         ++l;
       }
 
-      while (input.has_next()) {
-        c = input.next();
+      while (i.has_next()) {
+        c = i.next();
 
         if (c != '\'') {
           ++l;
-          ls.ls.push(c);
         } else {
           break;
         }
@@ -47,8 +50,9 @@ class extractor<rxsqstring<C>, C> {
 
       if (c == '\'') {
         ++l;
-
-        mls = move(ls);
+        icp.next();
+        sqs.sqs = string_slice<C>(icp, l - 2);
+        msqs = move(sqs);
         return l;
       }
     }
@@ -99,7 +103,7 @@ class extractor<rxinterval<C>, C> {
 
 template <character C>
 struct rxlist {
-  string<C> ls;
+  string_slice<C> ls;
 };
 
 template <character C>
@@ -107,13 +111,14 @@ class extractor<rxlist<C>, C> {
  public:
   template <istream_fragment<C> I>
   static constexpr size_t to(I i, maybe<rxlist<C>>& m) {
-    auto iinit = i;
+    auto icp = i;
     size_t l = 0;
 
     while (i.has_next()) {
       auto icopy = i;
       auto c = icopy.next();
       size_t s = 0;
+
       if (c == '\'') {
         maybe<rxsqstring<C>> tmp;
         s = extractor<rxsqstring<C>, C>::to(i, tmp);
@@ -132,7 +137,7 @@ class extractor<rxlist<C>, C> {
 
     if (l != 0) {
       rxlist<C> ls;
-      copy<C>(limit_iterator<I>(iinit, l), ls.ls.oter());
+      ls.ls = string_slice<C>(icp, l);
       m = move(ls);
     }
 
@@ -141,29 +146,25 @@ class extractor<rxlist<C>, C> {
 };
 
 template <character C>
-result<string<C>, match_error> search_sqstring(iterator auto ils,
-                                               iterator auto iin) {
+result<size_t, match_rc> search_sqstring(iterator auto ils, iterator auto iin) {
   using erc = extract_rc;
 
   maybe<rxsqstring<C>> msqs;
   maybe<tail_extract<C>> mtail;
 
   if (extract(ils, "$$", msqs, mtail) == erc::analyse_ok) {
-    if (starts_with(iin, msqs.get().ls.iter())) {
-      string<C> res;
-      copy<C>(msqs.get().ls.iter(), res.oter());
-      return move(res);
+    if (starts_with(iin, msqs.get().sqs)) {
+      return msqs.get().sqs.len();
     } else {
-      return match_error::dont_match;
+      return match_rc::dont_match;
     }
   }
 
-  return match_error::regex_parsing_error;
+  return match_rc::regex_parsing_error;
 }
 
 template <character C>
-result<string<C>, match_error> search_interval(iterator auto ils,
-                                               iterator auto iin) {
+result<size_t, match_rc> search_interval(iterator auto ils, iterator auto iin) {
   using erc = extract_rc;
 
   maybe<rxinterval<C>> minter;
@@ -176,25 +177,23 @@ result<string<C>, match_error> search_interval(iterator auto ils,
       auto last = minter.get().last;
 
       if (first <= c and c <= last) {
-        string<C> res;
-        res.push(c);
-        return move(res);
+        return 1;
       } else {
-        return match_error::dont_match;
+        return match_rc::dont_match;
       }
     } else {
-      return match_error::dont_match;
+      return match_rc::dont_match;
     }
   }
 
-  return match_error::regex_parsing_error;
+  return match_rc::regex_parsing_error;
 }
 
 template <character C>
-result<string<C>, match_error> search_sequence(iterator auto iseq,
-                                               iterator auto iin) {
-  string<C> res;
+result<size_t, match_rc> search_sequence(iterator auto iseq,
+                                         iterator auto iin) {
   bool one_match = false;
+  size_t l = 0;
 
   while (iseq.has_next()) {
     auto iseqcp = iseq;
@@ -203,25 +202,24 @@ result<string<C>, match_error> search_sequence(iterator auto iseq,
       auto localres = search_sqstring<C>(iseq, iin);
 
       if (localres.has()) {
-        auto len = localres.get().len();
+        auto len = localres.get();
         iin = advance(iin, len);
         iseq = advance(iseq, len + 2);
-        copy<C>(localres.get().iter(), res.oter());
+        l += len;
         one_match = true;
-      } else if (localres.err() == match_error::regex_parsing_error) {
-        return match_error::regex_parsing_error;
+      } else if (localres.err() == match_rc::regex_parsing_error) {
+        return match_rc::regex_parsing_error;
       }
     } else {
       auto localres = search_interval<C>(iseq, iin);
 
       if (localres.has()) {
-        auto len = localres.get().len();
-        iin = advance(iin, len);
-        iseq = advance(iseq, len + 2);
-        copy<C>(localres.get().iter(), res.oter());
+        iin = advance(iin, 1);
+        iseq = advance(iseq, 3);
+        l += 1;
         one_match = true;
-      } else if (localres.err() == match_error::regex_parsing_error) {
-        return match_error::regex_parsing_error;
+      } else if (localres.err() == match_rc::regex_parsing_error) {
+        return match_rc::regex_parsing_error;
       }
     }
 
@@ -232,16 +230,16 @@ result<string<C>, match_error> search_sequence(iterator auto iseq,
     one_match = false;
   }
 
-  if (res.len() == 0) {
-    return match_error::dont_match;
+  if (l == 0) {
+    return match_rc::dont_match;
   } else {
-    return res;
+    return l;
   }
 }
 
 template <character C>
-result<string<C>, match_error> search_expression(iterator auto irx,
-                                                 iterator auto iin) {
+result<string<C>, match_rc> search_expression(iterator auto irx,
+                                              iterator auto iin) {
   maybe<size_t> min;
   maybe<size_t> max;
   maybe<rxlist<C>> lst;
@@ -263,7 +261,7 @@ result<string<C>, match_error> search_expression(iterator auto irx,
   if (parsed and lst.has() and min.has() and max.has()) {
     auto mn = min.get();
     auto mx = max.get();
-    auto ils = lst.get().ls.iter();
+    auto ils = lst.get().ls;
 
     if (mn == 0 and mx == 0) {
       return string<C>();
@@ -275,39 +273,39 @@ result<string<C>, match_error> search_expression(iterator auto irx,
         auto localres = search_sequence<C>(ils, iin);
 
         if (localres.has()) {
-          auto len = localres.get().len();
+          auto len = localres.get();
+          copy<C>(limit_iterator(iin, localres.get()), res.oter());
           iin = advance(iin, len);
-          copy<C>(localres.get().iter(), res.oter());
           cnt += 1;
-        } else if (localres.err() == match_error::dont_match) {
+        } else if (localres.err() == match_rc::dont_match) {
           if (cnt == 0) {
             iin.next();
           } else {
             break;
           }
-        } else if (localres.err() == match_error::regex_parsing_error) {
-          return match_error::regex_parsing_error;
+        } else if (localres.err() == match_rc::regex_parsing_error) {
+          return match_rc::regex_parsing_error;
         }
       }
 
       if (mn <= cnt and cnt <= mx) {
         return move(res);
       } else {
-        return match_error::dont_match;
+        return match_rc::dont_match;
       }
     } else {
-      return match_error::min_more_max;
+      return match_rc::min_more_max;
     }
   } else {
-    return match_error::regex_parsing_error;
+    return match_rc::regex_parsing_error;
   }
 
-  return match_error::dont_match;
+  return match_rc::dont_match;
 }
 
 template <character C>
-result<string<C>, match_error> search(const string<C>& rx,
-                                      const string<C>& input) {
+result<string<C>, match_rc> search(const string<C>& rx,
+                                   const string<C>& input) {
   return search_expression<C>(rx.iter(), input.iter());
 }
 }  // namespace n

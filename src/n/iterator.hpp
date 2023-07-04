@@ -70,6 +70,7 @@ class limit_iterator {
  public:
   constexpr limit_iterator() : _it(), _limit(0) {}
   constexpr limit_iterator(I it, size_t limit) : _it(move(it)), _limit(limit) {}
+  constexpr limit_iterator(limit_iterator i, size_t limit): _it(move(i._it)), _limit(limit) {}
 
  public:
   constexpr bool has_next() const { return _limit != 0 and _it.has_next(); }
