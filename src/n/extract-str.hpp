@@ -22,7 +22,7 @@ class extract_pattern_iterator<C> : public cstring_iterator<C> {
 };
 
 template <istream_fragment<char> I, extractable<I, char>... T>
-constexpr extract_error extract(I input, extract_pattern_iterator<char> pattern,
+constexpr extract_rc extract(I input, extract_pattern_iterator<char> pattern,
                                 maybe<T>&... t) {
   return __extract(input, pattern, t...);
 }

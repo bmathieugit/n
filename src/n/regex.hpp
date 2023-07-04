@@ -7,6 +7,7 @@
 #include <n/result.hpp>
 #include <n/string.hpp>
 #include <n/utils.hpp>
+
 namespace n {
 // TODO: renommer en match_rc
 enum class match_error : int { dont_match, regex_parsing_error, min_more_max };
@@ -142,26 +143,20 @@ class extractor<rxlist<C>, C> {
 template <character C>
 result<string<C>, match_error> search_sqstring(iterator auto ils,
                                                iterator auto iin) {
-  using ee = extract_error;
+  using erc = extract_rc;
 
   maybe<rxsqstring<C>> msqs;
   maybe<tail_extract<C>> mtail;
-  ::printf("je tente l'extraction d'une sqs\n");
 
-  if (extract(ils, "$$", msqs, mtail) == ee::analyse_ok) {
-    ::printf("l'extraction regex est OK\n");
+  if (extract(ils, "$$", msqs, mtail) == erc::analyse_ok) {
     if (starts_with(iin, msqs.get().ls.iter())) {
-      ::printf("l'input et la sqs correspondent\n");
       string<C> res;
       copy<C>(msqs.get().ls.iter(), res.oter());
       return move(res);
     } else {
-      ::printf("aucune correspondance\n");
       return match_error::dont_match;
     }
   }
-
-  ::printf("il y a eu un soucis durant l'extraction de la sqs regex\n");
 
   return match_error::regex_parsing_error;
 }
@@ -169,42 +164,79 @@ result<string<C>, match_error> search_sqstring(iterator auto ils,
 template <character C>
 result<string<C>, match_error> search_interval(iterator auto ils,
                                                iterator auto iin) {
-  using ee = extract_error;
+  using erc = extract_rc;
 
   maybe<rxinterval<C>> minter;
   maybe<tail_extract<C>> mtail;
-  ::printf("je tente une extraction d'un interval\n");
-  auto ilscopy = ils;
-  if (ilscopy.has_next())
-  {
-    auto c = ilscopy.next();
-    ::printf("premiere lettre de la regex actuelle : '%c'\n", c);
-  }
 
-
-  if (extract(ils, "$$", minter, mtail) == ee::analyse_ok) {
-    ::printf("l'extraction regex s'est bien passé %c-%c\n", minter.get().first, minter.get().last);
+  if (extract(ils, "$$", minter, mtail) == erc::analyse_ok) {
     if (iin.has_next()) {
       auto c = iin.next();
       auto first = minter.get().first;
       auto last = minter.get().last;
 
       if (first <= c and c <= last) {
-        ::printf("l'input et la regex correspondent\n");
         string<C> res;
         res.push(c);
         return move(res);
       } else {
-        ::printf("coucou1\n");
         return match_error::dont_match;
       }
     } else {
-      ::printf("coucou2\n");
       return match_error::dont_match;
     }
   }
-  ::printf("coucou3\n");
+
   return match_error::regex_parsing_error;
+}
+
+template <character C>
+result<string<C>, match_error> search_sequence(iterator auto iseq,
+                                               iterator auto iin) {
+  string<C> res;
+  bool one_match = false;
+
+  while (iseq.has_next()) {
+    auto iseqcp = iseq;
+
+    if (iseqcp.has_next() and iseqcp.next() == '\'') {
+      auto localres = search_sqstring<C>(iseq, iin);
+
+      if (localres.has()) {
+        auto len = localres.get().len();
+        iin = advance(iin, len);
+        iseq = advance(iseq, len + 2);
+        copy<C>(localres.get().iter(), res.oter());
+        one_match = true;
+      } else if (localres.err() == match_error::regex_parsing_error) {
+        return match_error::regex_parsing_error;
+      }
+    } else {
+      auto localres = search_interval<C>(iseq, iin);
+
+      if (localres.has()) {
+        auto len = localres.get().len();
+        iin = advance(iin, len);
+        iseq = advance(iseq, len + 2);
+        copy<C>(localres.get().iter(), res.oter());
+        one_match = true;
+      } else if (localres.err() == match_error::regex_parsing_error) {
+        return match_error::regex_parsing_error;
+      }
+    }
+
+    if (not one_match) {
+      break;
+    }
+
+    one_match = false;
+  }
+
+  if (res.len() == 0) {
+    return match_error::dont_match;
+  } else {
+    return res;
+  }
 }
 
 template <character C>
@@ -216,14 +248,14 @@ result<string<C>, match_error> search_expression(iterator auto irx,
 
   bool parsed = false;
 
-  using ee = extract_error;
+  using erc = extract_rc;
 
-  if (extract(irx, "{$:$:$}", lst, min, max) == ee::analyse_ok) {
+  if (extract(irx, "{$:$:$}", lst, min, max) == erc::analyse_ok) {
     parsed = true;
-  } else if (extract(irx, "{$:$:}", lst, min) == ee::analyse_ok) {
+  } else if (extract(irx, "{$:$:}", lst, min) == erc::analyse_ok) {
     max = size_t(-1);
     parsed = true;
-  } else if (extract(irx, "{$::$}", lst, max) == ee::analyse_ok) {
+  } else if (extract(irx, "{$::$}", lst, max) == erc::analyse_ok) {
     min = 0;
     parsed = true;
   }
@@ -236,49 +268,30 @@ result<string<C>, match_error> search_expression(iterator auto irx,
     if (mn == 0 and mx == 0) {
       return string<C>();
     } else if (mn <= mx) {
-      string<C> tmp;
+      string<C> res;
       size_t cnt = 0;
 
-      while (ils.has_next() and cnt <= mx) {
-        auto ilscopy = ils;
-        auto c = ilscopy.next();
-        bool onematch = false;
-        if (c == '\'') {
-          auto&& res = search_sqstring<C>(ils, iin);
+      while (ils.has_next() and cnt <= mx and iin.has_next()) {
+        auto localres = search_sequence<C>(ils, iin);
 
-          if (res.has()) {
-            copy<C>(res.get().iter(), tmp.oter());
-            ils = advance(ils, res.get().len() + 2);
-            iin = advance(iin, res.get().len());
-            cnt += 1;
-            onematch = true;
-          } else if (res.err() == match_error::regex_parsing_error) {
-            return match_error::regex_parsing_error;
-          }
-          else {
-          }
-        } else {
-          auto&& res = search_interval<C>(ils, iin);
-
-          if (res.has()) {
-            copy<C>(res.get().iter(), tmp.oter());
-            ils = advance(ils, 3);
-            iin = advance(iin, 1);
-            cnt += 1;
-            onematch = true;
-          } else if (res.err() == match_error::regex_parsing_error) {
-            return match_error::regex_parsing_error;
+        if (localres.has()) {
+          auto len = localres.get().len();
+          iin = advance(iin, len);
+          copy<C>(localres.get().iter(), res.oter());
+          cnt += 1;
+        } else if (localres.err() == match_error::dont_match) {
+          if (cnt == 0) {
+            iin.next();
           } else {
+            break;
           }
-        }
-
-        if (not onematch) {
-          break;
+        } else if (localres.err() == match_error::regex_parsing_error) {
+          return match_error::regex_parsing_error;
         }
       }
 
       if (mn <= cnt and cnt <= mx) {
-        return move(tmp);
+        return move(res);
       } else {
         return match_error::dont_match;
       }
