@@ -146,7 +146,7 @@ class extractor<rxlist<C>, C> {
 };
 
 template <character C>
-result<size_t, match_rc> search_sqstring(iterator auto ils, iterator auto iin) {
+constexpr result<size_t, match_rc> search_sqstring(iterator auto ils, iterator auto iin) {
   using erc = extract_rc;
 
   maybe<rxsqstring<C>> msqs;
@@ -164,7 +164,7 @@ result<size_t, match_rc> search_sqstring(iterator auto ils, iterator auto iin) {
 }
 
 template <character C>
-result<size_t, match_rc> search_interval(iterator auto ils, iterator auto iin) {
+constexpr result<size_t, match_rc> search_interval(iterator auto ils, iterator auto iin) {
   using erc = extract_rc;
 
   maybe<rxinterval<C>> minter;
@@ -190,7 +190,7 @@ result<size_t, match_rc> search_interval(iterator auto ils, iterator auto iin) {
 }
 
 template <character C>
-result<size_t, match_rc> search_sequence(iterator auto iseq,
+constexpr result<size_t, match_rc> search_sequence(iterator auto iseq,
                                          iterator auto iin) {
   bool one_match = false;
   size_t l = 0;
@@ -238,7 +238,7 @@ result<size_t, match_rc> search_sequence(iterator auto iseq,
 }
 
 template <character C>
-result<string<C>, match_rc> search_expression(iterator auto irx,
+constexpr result<string<C>, match_rc> search_expression(iterator auto irx,
                                               iterator auto iin) {
   maybe<size_t> min;
   maybe<size_t> max;
@@ -269,7 +269,7 @@ result<string<C>, match_rc> search_expression(iterator auto irx,
       string<C> res;
       size_t cnt = 0;
 
-      while (ils.has_next() and cnt <= mx and iin.has_next()) {
+      while (ils.has_next() and cnt < mx and iin.has_next()) {
         auto localres = search_sequence<C>(ils, iin);
 
         if (localres.has()) {
@@ -277,6 +277,7 @@ result<string<C>, match_rc> search_expression(iterator auto irx,
           copy<C>(limit_iterator(iin, localres.get()), res.oter());
           iin = advance(iin, len);
           cnt += 1;
+          ::printf("%lu <= %lu <= %lu\n", mn, cnt, mx);
         } else if (localres.err() == match_rc::dont_match) {
           if (cnt == 0) {
             iin.next();
@@ -304,7 +305,7 @@ result<string<C>, match_rc> search_expression(iterator auto irx,
 }
 
 template <character C>
-result<string<C>, match_rc> search(const string<C>& rx,
+constexpr result<string<C>, match_rc> search(const string<C>& rx,
                                    const string<C>& input) {
   return search_expression<C>(rx.iter(), input.iter());
 }

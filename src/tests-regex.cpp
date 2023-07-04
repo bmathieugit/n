@@ -10,5 +10,12 @@ int main() {
     n::printf("pas de match '$'\n", (int)found.err());
   }
 
+  auto found2 = n::search(n::str("{'aa'a-zA-Z:0:1}"), n::str("GGaaaRaaaRq"));
+
+  if (found2.has()) {
+    n::printf("'$'\n", found2.get());
+  } else {
+    n::printf("pas de match '$'\n", (int)found2.err());
+  }
   return 0;
 }
