@@ -13,7 +13,7 @@ all: \
 clean:
 	rm -rf building
 	rm -rf dist
-
+	rm -f test*
 building:
 	mkdir -p building
 
@@ -37,13 +37,17 @@ tests-io: src/tests-io.cpp building
 	${CXX} -o  building/tests-io.app src/tests-io.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests-io.app	
 
+tests-measure: src/tests-measure.cpp building
+	${CXX} -o  building/tests-measure.app src/tests-measure.cpp ${CXXFLAGS} ${CXXINCS}
+	./building/tests-measure.app	
+
 tests-regex: src/tests-regex.cpp building
 	${CXX} -o  building/tests-regex.app src/tests-regex.cpp ${CXXFLAGS} ${CXXINCS}
 	./building/tests-regex.app	
 
 
 
-test: tests-vector tests-string tests-format tests-extract tests-io tests-regex
+test: tests-vector tests-string tests-format tests-extract tests-io tests-measure tests-regex
 
 install: 
 	mkdir -p dist

@@ -29,9 +29,8 @@ concept extractable = istream_fragment<I, IU> and (requires(I i, maybe<T>& t) {
 template <typename T>
 class extract_pattern_iterator;
 
-// TODO: renommer en extract
 enum class extract_rc : int {
-  analyse_ok,
+  ok,
   pattern_missing_joker,
   pattern_toomany_joker,
   parsing_failed,
@@ -62,7 +61,7 @@ constexpr extract_rc __extract(I input, extract_pattern_iterator<IU> pattern,
   }
 
   if constexpr (sizeof...(TN) == 0 and same_as<T0, tail_extract<IU>>) {
-    return extract_rc::analyse_ok;
+    return extract_rc::ok;
   } else {
     if (!input.has_next()) {
       return extract_rc::empty_input_tail;
@@ -93,7 +92,7 @@ constexpr extract_rc __extract(I input, extract_pattern_iterator<IU> pattern,
       } else if (input.has_next()) {
         return extract_rc::notempty_input_tail;
       } else {
-        return extract_rc::analyse_ok;
+        return extract_rc::ok;
       }
     } else if constexpr (sizeof...(TN) > 0) {
       return __extract(input, pattern, tn...);
