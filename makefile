@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS= -std=c++20 -O3 -save-temps
-#CXXFLAGS+= -fconcepts-diagnostics-depth=10
+CXXFLAGS+= -fconcepts-diagnostics-depth=10
 CXXINCS=-Isrc
 
 all: \

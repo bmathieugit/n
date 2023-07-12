@@ -18,6 +18,7 @@ concept iterator = __iterator_has_next<I> and __iterator_next<I>;
 
 template <typename O, typename T>
 concept oterator = requires(O o, T t) { o.sext(t); };
+
 }  // namespace n
 
 namespace n {

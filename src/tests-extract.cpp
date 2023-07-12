@@ -1,7 +1,7 @@
 #include <n/extract.hpp>
 #include <n/tests.hpp>
 
-#include "n/extract-core.hpp"
+#include "n/extract.hpp"
 
 bool operator==(const n::string<char>& s, const char* s1) {
   return n::equal(s.iter(), n::pointer_iterator(s1, strlen(s1)));
@@ -25,8 +25,7 @@ void test_extract_string() {
 // Test extract for unsigned integral
 void test_extract_unsigned_integral() {
   n::maybe<unsigned int> mui;
-  auto res = n::extract(n::str("123").iter(), "$", mui);
-  N_TEST_ASSERT_EQUALS(res, n::extract_rc::ok);
+  n::extract(n::str("123").iter(), "$", mui);
   N_TEST_ASSERT_TRUE(mui.has());
   N_TEST_ASSERT_EQUALS(mui.get(), 123u);
 }
@@ -53,9 +52,8 @@ void test_extract_bool() {
 
 void test_extract_specific_pattern1() {
   n::maybe<int> age;
-  auto res=  n::extract(n::str("j'ai 12 ans").iter(), "j'ai $ ans", age);
+  n::extract(n::str("j'ai 12 ans").iter(), "j'ai $ ans", age);
   
-  N_TEST_ASSERT_EQUALS(res, n::extract_rc::ok);
   N_TEST_ASSERT_TRUE(age.has());
   N_TEST_ASSERT_EQUALS(age.get(), 12);
 }
@@ -63,9 +61,8 @@ void test_extract_specific_pattern1() {
 void test_extract_specific_pattern2() {
   n::maybe<int> age;
   n::maybe<n::string<char>> s;
-  auto res = n::extract(n::str("j'ai 12 ans et \"demi\"!").iter(),
+  n::extract(n::str("j'ai 12 ans et \"demi\"!").iter(),
                         "j'ai $ ans et $!", age, s);
-  N_TEST_ASSERT_EQUALS(res, n::extract_rc::ok);
   N_TEST_ASSERT_TRUE(age.has());
   N_TEST_ASSERT_EQUALS(age.get(), 12);
 
@@ -76,11 +73,9 @@ void test_extract_specific_pattern2() {
 void test_extract_specific_pattern3() {
   n::maybe<int> age;
   n::maybe<n::string<char>> name;
-  auto res = n::extract(n::str("j'ai 12 ans, je m'appelle \"Bob\" !!").iter(),
+  n::extract(n::str("j'ai 12 ans, je m'appelle \"Bob\" !!").iter(),
                         "j'ai $ ans, je m'appelle $ !!", age, name);
-  printf("%d\n", (int)res);
 
-  N_TEST_ASSERT_EQUALS(res, n::extract_rc::ok);
 
   N_TEST_ASSERT_TRUE(age.has());
   N_TEST_ASSERT_EQUALS(age.get(), 12);

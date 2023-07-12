@@ -195,20 +195,17 @@ class file {
   }
 };
 
-
 static auto stdr = file<char, mode::std_in>(stdin);
 static auto stdw = file<char, mode::std_out>(stdout);
 
-namespace impl {
 template <character C, formattable<C, file<C, mode::std_out>>... T>
-void printf(format_pattern_iterator<C> fmt, const T &...t) {
+void __printf(cstring_iterator<C> fmt, const T &...t) {
   format_to(stdw, fmt, t...);
 }
-}  // namespace impl
 
 template <formattable<char, file<char, mode::std_out>>... T>
-void printf(format_pattern_iterator<char> fmt, const T &...t) {
-  impl::printf(fmt, t...);
+void printf(cstring_iterator<char> fmt, const T &...t) {
+  __printf(fmt, t...);
 }
 
 }  // namespace n
